@@ -1,0 +1,8 @@
+# mysql_db.cnf
+[mysqld]
+lower_case_table_names = 1
+max_connections        = 2000
+max_allowed_packet     = 32M
+transaction-isolation  = READ-COMMITTED
+character_set_server   = utf8mb4
+collation_server       = utf8mb4_bin

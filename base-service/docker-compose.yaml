@@ -1,0 +1,38 @@
+version: "3"
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: quickstart
+      MYSQL_PASSWORD: quickstart
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/mysql_data:/var/lib/mysql
+      - ./mysql/mysql_db.cnf:/etc/mysql/conf.d/mysql_db.cnf
+  redis:
+    container_name: redis
+    image: redis:4-alpine
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+  minio:
+    container_name: minio
+    image: minio/minio:RELEASE.2018-05-25T19-49-13Z
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "9000:9000"
+    command: server /data
+    volumes:
+      - ./minio/data:/data
+      - ./minio/config:/root/.minio
