@@ -8,8 +8,8 @@ REPO_BASE="$ALIYUN_MIRROR/repo/Centos-7.repo"
 REPO_EPEL="$ALIYUN_MIRROR/repo/epel-7.repo"
 REPO_IUS="$ALIYUN_MIRROR/ius/ius-7.repo"
 M2_MAJOR="3"
-M2_VERSION="3.3.9"
-NODE_VERSION="12.18.3"
+M2_VERSION="3.9.5"
+NODE_VERSION="12.22.12"
 NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 DOCKER_VERSION="17.09"
 COMPOSE_VERSION="1.24.1"
@@ -51,11 +51,26 @@ EOF
 # 解决 DNS 无法解析导致安装包超时的问题
 # ----------------------------------------------------------------
 resolve_dns() {
-  info "Resolving DNS ..."
-  for nameserver in $(cat /vagrant/user-config/nameserver.conf); do
-    info "Resolving DNS by adding nameserver $nameserver ..."
-    nmcli con mod enp0s3 +ipv4.dns $nameserver
+  info "Find network interface with real internet connection..."
+  local network_uuid=
+  for uuid in $(nmcli -get-values UUID conn show --active); do
+    if [ "auto" = "$(nmcli -terse conn show uuid $uuid | grep ipv4.method | awk -F '[:/]' '{print $2}')" ]; then
+    network_uuid=$uuid
+    fi
   done
+
+  if [ -z $network_uuid ]; then
+    warn "Failed to locate correct network interface."
+    return 1
+  fi
+
+  info "Resolving DNS..."
+  for nameserver in $(cat /vagrant/user-config/nameserver.conf); do
+    info "Adding nameserver $nameserver ..."
+    nmcli con mod $network_uuid +ipv4.dns $nameserver
+  done
+
+  info "Restarting network manager..."
   systemctl restart NetworkManager
 }
 
@@ -107,14 +122,14 @@ install_frontend_packages() {
   tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
   # 安装依赖的前端工具
   info "Installing yarn and lerna ..."
-  npm install -g yarn lerna --registry=https://registry.npm.taobao.org
+  npm install -g yarn lerna --registry=https://registry.npmmirror.com
 }
 
 # ----------------------------------------------------------------
 # 安装 Docker
 # ----------------------------------------------------------------
 install_docker() {
-  if command_exists docker; then
+  if has_command docker; then
     info "Docker has been previously installed."
   else
     info "Enable iptables routing ..."
@@ -140,18 +155,13 @@ EOF
 
 # 安装 Docker Compose
 install_compose() {
-  if command_exists docker-compose; then
+  if has_command docker-compose; then
     info "Docker Compose has been previously installed."
   else
     info "Installing Docker Compose ..."
-    # yum -y install python-pip
-    # # pip install --upgrade pip
-    # python -m pip install -U pip
-    # pip install docker-compose
-    curl -sSL \
-      https://get.daocloud.io/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` \
-      > /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
+    yum -y install python3-pip
+    python3 -m pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple
+    pip3 install docker-compose -i https://mirrors.aliyun.com/pypi/simple
   fi
 }
 
@@ -159,11 +169,11 @@ install_compose() {
 # 安装 Maven
 # ----------------------------------------------------------------
 install_maven() {
-  if command_exists mvn; then
+  if has_command mvn; then
     info "Maven has been previously installed."
   else
     info "Installing Maven ..."
-    local download_url=http://mirrors.tuna.tsinghua.edu.cn/apache/maven/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-maven-${M2_VERSION}-bin.tar.gz
+    local download_url=https://mirrors.aliyun.com/apache/maven/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-maven-${M2_VERSION}-bin.tar.gz
     info "Downloading ${download_url}"
     curl -sSL ${download_url} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
     info "Extracting files to /opt ..."
@@ -180,25 +190,25 @@ install_maven() {
 # ----------------------------------------------------------------
 verify_versions() {
   info "Verifying package versions ..."
-  echo "Node   version: $(node -v)"
-  echo "NPM    version: $(npm -v)"
-  echo "lerna  version: $(lerna -v)"
-  echo "yarn   version: $(yarn -v)"
-  echo "java   version: $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}')"
-  echo "mvn    version: $(mvn -version | head -n 1 | awk '{print $3}')"
-  echo "git    version: $(git version | awk '{print $3}')"
-  echo "docker version: $(docker version | grep Version | head -n 1 | awk '{print $2}')"
-  docker-compose version
+  has_command node   && echo "Node   version: $(node -v)"
+  has_command npm    && echo "NPM    version: $(npm -v)"
+  has_command lerna  && echo "lerna  version: $(lerna -v)"
+  has_command yarn   && echo "yarn   version: $(yarn -v)"
+  has_command java   && echo "java   version: $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}')"
+  has_command mvn    && echo "mvn    version: $(mvn -version | head -n 1 | awk '{print $3}')"
+  has_command git    && echo "git    version: $(git version | awk '{print $3}')"
+  has_command docker && echo "docker version: $(docker version | grep Version | head -n 1 | awk '{print $2}')"
+  has_command docker-compose && docker-compose version
 }
 
 {
   DEBUG set -x
   setup_env
   setup_hosts
-  # resolve_dns
+  resolve_dns
   accelerate_yum_repo
   install_base_packages
-  install_frontend_packages
+  # install_frontend_packages
   install_docker
   install_compose
   install_maven
