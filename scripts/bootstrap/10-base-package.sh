@@ -9,8 +9,6 @@ REPO_EPEL="$ALIYUN_MIRROR/repo/epel-7.repo"
 REPO_IUS="$ALIYUN_MIRROR/ius/ius-7.repo"
 M2_MAJOR="3"
 M2_VERSION="3.9.5"
-NODE_VERSION="12.22.12"
-NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 DOCKER_VERSION="17.09"
 COMPOSE_VERSION="1.24.1"
 
@@ -112,24 +110,10 @@ install_base_packages() {
 }
 
 # ----------------------------------------------------------------
-# 安装 Node.js
-# ----------------------------------------------------------------
-install_frontend_packages() {
-  local download_url=https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz
-  info "Installing node and npm ..."
-  info "Downloading ${download_url}"
-  curl -sSL ${download_url} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
-  tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
-  # 安装依赖的前端工具
-  info "Installing yarn and lerna ..."
-  npm install -g yarn lerna --registry=https://registry.npmmirror.com
-}
-
-# ----------------------------------------------------------------
 # 安装 Docker
 # ----------------------------------------------------------------
 install_docker() {
-  if has_command docker; then
+  if sys_already_installed docker; then
     info "Docker has been previously installed."
   else
     info "Enable iptables routing ..."
@@ -155,7 +139,7 @@ EOF
 
 # 安装 Docker Compose
 install_compose() {
-  if has_command docker-compose; then
+  if sys_already_installed docker-compose; then
     info "Docker Compose has been previously installed."
   else
     info "Installing Docker Compose ..."
@@ -169,7 +153,7 @@ install_compose() {
 # 安装 Maven
 # ----------------------------------------------------------------
 install_maven() {
-  if has_command mvn; then
+  if sys_already_installed mvn; then
     info "Maven has been previously installed."
   else
     info "Installing Maven ..."
@@ -190,15 +174,15 @@ install_maven() {
 # ----------------------------------------------------------------
 verify_versions() {
   info "Verifying package versions ..."
-  has_command node   && echo "Node   version: $(node -v)"
-  has_command npm    && echo "NPM    version: $(npm -v)"
-  has_command lerna  && echo "lerna  version: $(lerna -v)"
-  has_command yarn   && echo "yarn   version: $(yarn -v)"
-  has_command java   && echo "java   version: $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}')"
-  has_command mvn    && echo "mvn    version: $(mvn -version | head -n 1 | awk '{print $3}')"
-  has_command git    && echo "git    version: $(git version | awk '{print $3}')"
-  has_command docker && echo "docker version: $(docker version | grep Version | head -n 1 | awk '{print $2}')"
-  has_command docker-compose && docker-compose version
+  sys_already_installed node   && echo "Node   version: $(node -v)"
+  sys_already_installed npm    && echo "NPM    version: $(npm -v)"
+  sys_already_installed lerna  && echo "lerna  version: $(lerna -v)"
+  sys_already_installed yarn   && echo "yarn   version: $(yarn -v)"
+  sys_already_installed java   && echo "java   version: $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}')"
+  sys_already_installed mvn    && echo "mvn    version: $(mvn -version | head -n 1 | awk '{print $3}')"
+  sys_already_installed git    && echo "git    version: $(git version | awk '{print $3}')"
+  sys_already_installed docker && echo "docker version: $(docker version | grep Version | head -n 1 | awk '{print $2}')"
+  sys_already_installed docker-compose && docker-compose version
 }
 
 {
@@ -208,7 +192,6 @@ verify_versions() {
   resolve_dns
   accelerate_yum_repo
   install_base_packages
-  # install_frontend_packages
   install_docker
   install_compose
   install_maven

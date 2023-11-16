@@ -26,11 +26,16 @@ Vagrant.configure("2") do |config|
 
   # 启动基础服务
   config.vm.provision "base-service", type: "shell", run: "never", privileged: false, inline: <<-SHELL
-    /vagrant/scripts/provision/base-service.sh
+    /vagrant/scripts/provisioner/install-base-services.sh
   SHELL
 
   # 检查基础服务是否运行正常
   config.vm.provision "health-check", type: "shell", run: "never", privileged: false, inline: <<-SHELL
-    /vagrant/scripts/provision/health-check.sh
+    /vagrant/scripts/provisioner/health-check.sh
+  SHELL
+
+  # Install npm, yarn and lerna
+  config.vm.provision "frontend-tools", type: "shell", run: "never", privileged: true, inline: <<-SHELL
+    /vagrant/scripts/provisioner/install-frontend-tools.sh
   SHELL
 end
