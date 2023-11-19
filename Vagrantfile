@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "bento/centos-7.5"
   config.vm.box_check_update = false
   # https://github.com/dotless-de/vagrant-vbguest/issues/351
-  config.vbguest.auto_update = false
+  config.vbguest.auto_update = false if Vagrant.has_plugin?("vagrant-vbguest")
   config.vm.network "private_network", ip: "#{MACHINE_IP}"
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 4
