@@ -14,14 +14,14 @@
 
 | 软件/系统        | 版本                       | 备注                           |
 | ---------------- | -------------------------- | ------------------------------ |
-| Vagrant Box 镜像 | bento/centos-7.5           | 基础镜像                       |
+| Vagrant Box 镜像 | `bento/rockylinux-9`       | 基础镜像                       |
 | OpenJDK          | 8                          |                                |
 | Apache Maven     | 3.9.5                      |                                |
-| Git              | 2.24.4                     |                                |
-| Docker           | 17.09.1-ce                 |                                |
-| Docker Compose   | 1.29.2                     |                                |
-| Node.js          | 17.9.1                     | 由置备器 `frontend-tools` 提供 |
-| npm              | 8.11.0                     | 由置备器 `frontend-tools` 提供 |
+| Git              | 2.29.3                     |                                |
+| Podman           | 4.4.1                      |                                |
+| Podman Compose   | 1.0.6                      |                                |
+| Node.js          | 20.9.0                     | 由置备器 `frontend-tools` 提供 |
+| npm              | 10.2.4                     | 由置备器 `frontend-tools` 提供 |
 | Lerna            | 基于 Node 版本安装的最新版 | 由置备器 `frontend-tools` 提供 |
 | Yarn             | 基于 Node 版本安装的最新版 | 由置备器 `frontend-tools` 提供 |
 
@@ -71,7 +71,7 @@ redis   docker-entrypoint.sh redis ...   Up             0.0.0.0:6379->6379/tcp
 
 ### 3. frontend-tools
 
-该置备器用户安装前端工具 Node, Yarn 和 Lerna。由于目前 Vagrant 的 Box 使用的是 `bento/centos-7.5`，因此可以支持的最高的 Node 版本为 `v17.9.1`，高于此版本的 Node 将会报错。这些工具由一个名叫 `frontend-tools` 的置备器来提供安装，命令如下：
+该置备器用户安装前端工具 Node, Yarn 和 Lerna，这些工具由一个名叫 `frontend-tools` 的置备器来提供安装，命令如下：
 
 ```shell
 $ vagrant provision --provision-with frontend-tools
@@ -81,6 +81,6 @@ $ vagrant provision --provision-with frontend-tools
 
 ```shell
 $ vagrant ssh
-$ cd /quickstart
+$ cd /devbox
 ```
 

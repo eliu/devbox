@@ -3,14 +3,8 @@ set -e
 
 MACHINE_IP="$1"
 TEMPDIR="$(mktemp -d)"
-ALIYUN_MIRROR="https://mirrors.aliyun.com"
-REPO_BASE="$ALIYUN_MIRROR/repo/Centos-7.repo"
-REPO_EPEL="$ALIYUN_MIRROR/repo/epel-7.repo"
-REPO_IUS="$ALIYUN_MIRROR/ius/ius-7.repo"
 M2_MAJOR="3"
 M2_VERSION="3.9.5"
-DOCKER_VERSION="17.09"
-COMPOSE_VERSION="1.24.1"
 
 # 初始化公共环境变量及函数
 . /vagrant/scripts/common/profile.env
@@ -20,7 +14,7 @@ COMPOSE_VERSION="1.24.1"
 # ----------------------------------------------------------------
 setup_env() {
   info "Setting up environment ..."
-  cat > /etc/profile.d/quickstart.sh << EOF
+  cat > /etc/profile.d/devbox.sh << EOF
 export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}
 export PATH=\$MAVEN_HOME/bin:/opt/${NODE_FILENAME}/bin:/usr/local/bin:\$PATH
 export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)
@@ -75,19 +69,14 @@ resolve_dns() {
 # ----------------------------------------------------------------
 # 替换默认的软件源
 # ----------------------------------------------------------------
-accelerate_yum_repo() {
-  info "Setting up yum repo ..."
-  # mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
-  rm -fr /etc/yum.repos.d/*.repo
-  curl -sSL $REPO_BASE -o /etc/yum.repos.d/CentOS-Base.repo
-  sed -i -e '/mirrors.cloud.aliyuncs.com/d' \
-         -e '/mirrors.aliyuncs.com/d' \
-         /etc/yum.repos.d/CentOS-Base.repo
-  curl -sSL $REPO_EPEL -o /etc/yum.repos.d/epel.repo
-  curl -sSL $REPO_IUS -o /etc/yum.repos.d/ius.repo
-  sed -i 's repo.ius.io mirrors.aliyun.com/ius/ g' /etc/yum.repos.d/ius.repo
-  yum clean all
-  yum makecache fast
+accelerate_repo() {
+  info "Acceleratiing your repository..."
+  # https://developer.aliyun.com/mirror/rockylinux
+  sed -i.bak \
+    -e 's|^mirrorlist=|#mirrorlist=|g' \
+    -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
+    /etc/yum.repos.d/rocky*.repo
+  dnf makecache
 }
 
 # ----------------------------------------------------------------
@@ -95,58 +84,19 @@ accelerate_yum_repo() {
 # ----------------------------------------------------------------
 install_base_packages() {
   info "Installing base packages ..."
-  yum install -y \
-    gcc \
-    pcre \
-    pcre-devel \
-    zlib \
-    zlib-devel \
-    openssl \
-    openssl-devel \
+  dnf install -y \
     java-1.8.0-openjdk-devel \
-    yum-utils \
-    git224 \
+    git \
+    python3-pip \
+    podman \
     vim
-}
-
-# ----------------------------------------------------------------
-# 安装 Docker
-# ----------------------------------------------------------------
-install_docker() {
-  if sys_already_installed docker; then
-    info "Docker has been previously installed."
-  else
-    info "Enable iptables routing ..."
-    cat > /etc/sysctl.d/docker.conf <<EOF
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
+  info "Installing compose implementation..."
+  su - vagrant <<EOF
+pip3 install podman-compose -i https://mirrors.aliyun.com/pypi/simple
 EOF
-    sysctl --system > /dev/null
-
-    info "Installing docker ..."
-    {
-      # https://yq.aliyun.com/articles/110806?spm=a2c4e.11153940.0.0.108e435aDMp0n2&p=4#comments
-      export VERSION=$DOCKER_VERSION
-      curl -sSL https://get.docker.com | bash -s docker --mirror Aliyun
-    }
-    usermod -aG docker vagrant
-    systemctl enable docker
-    mkdir -p /etc/docker
-    cp -f /vagrant/user-config/docker-daemon.json /etc/docker/daemon.json
-    systemctl restart docker
-  fi
-}
-
-# 安装 Docker Compose
-install_compose() {
-  if sys_already_installed docker-compose; then
-    info "Docker Compose has been previously installed."
-  else
-    info "Installing Docker Compose ..."
-    yum -y install python3-pip
-    python3 -m pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple
-    pip3 install docker-compose -i https://mirrors.aliyun.com/pypi/simple
-  fi
+  info "Accelerating container registry..."
+  mv /etc/containers/registries.conf /etc/containers/registries.conf.bak
+  \cp -f /vagrant/user-config/registries.conf /etc/containers/registries.conf
 }
 
 # ----------------------------------------------------------------
@@ -173,7 +123,7 @@ install_maven() {
 # 确认所有软件的版本
 # ----------------------------------------------------------------
 verify_versions() {
-  info "Verifying package versions ..."
+  info "VERIFY PACKAGE VERSION..."
   sys_already_installed node   && echo "Node   version: $(node -v)"
   sys_already_installed npm    && echo "NPM    version: $(npm -v)"
   sys_already_installed lerna  && echo "lerna  version: $(lerna -v)"
@@ -181,8 +131,7 @@ verify_versions() {
   sys_already_installed java   && echo "java   version: $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}')"
   sys_already_installed mvn    && echo "mvn    version: $(mvn -version | head -n 1 | awk '{print $3}')"
   sys_already_installed git    && echo "git    version: $(git version | awk '{print $3}')"
-  sys_already_installed docker && echo "docker version: $(docker version | grep Version | head -n 1 | awk '{print $2}')"
-  sys_already_installed docker-compose && docker-compose version
+  sys_already_installed podman && echo "podman version: $(podman version | grep Version | head -n 1 | awk '{print $2}')"
 }
 
 {
@@ -190,10 +139,8 @@ verify_versions() {
   setup_env
   setup_hosts
   resolve_dns
-  accelerate_yum_repo
+  accelerate_repo
   install_base_packages
-  install_docker
-  install_compose
   install_maven
   verify_versions
   DEBUG set +x

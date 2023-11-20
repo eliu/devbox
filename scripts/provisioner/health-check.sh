@@ -4,5 +4,5 @@ set -e
 {
   . /vagrant/scripts/common/profile.env
   cd "$APP_HOME/base-service"
-  docker-compose ps
+  sys_already_installed podman-compose && podman-compose ps
 }

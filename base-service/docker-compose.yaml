@@ -7,8 +7,8 @@ services:
     environment:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: quickstart
-      MYSQL_PASSWORD: quickstart
+      MYSQL_USER: devbox
+      MYSQL_PASSWORD: devbox
     ports:
       - "3306:3306"
     volumes:

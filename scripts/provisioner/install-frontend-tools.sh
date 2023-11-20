@@ -2,14 +2,16 @@
 set -e
 source /vagrant/scripts/common/profile.env
 
-readonly NODE_VERSION="17.9.1"
+readonly NODE_VERSION="20.9.0"
 readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 readonly URL="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
 
-setup_context() {
+post_setup() {
   info "Setting up context..."
-  echo "export PATH=/opt/${NODE_FILENAME}/bin:/usr/local/bin:\$PATH" >> /etc/profile.d/quickstart.sh
+  echo "export PATH=/opt/${NODE_FILENAME}/bin:/usr/local/bin:\$PATH" >> /etc/profile.d/devbox.sh
   source /etc/profile > /dev/null
+  info "Accelerating registry..."
+  npm config set registry https://registry.npmmirror.com
 }
 
 install_node() {
@@ -18,14 +20,16 @@ install_node() {
     info "Downloading ${URL}"
     curl -sSL ${URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
     tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
-    setup_context
+    post_setup
   fi
 }
 
 install_others() {
   if ! sys_already_installed yarn lerna; then
     info "Installing yarn and lerna..."
-    npm install --silent -g yarn lerna --registry=https://registry.npmmirror.com
+    npm install -s -g npm
+    npm install -s -g yarn
+    yarn -s global add lerna
   fi
 }
 
