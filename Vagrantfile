@@ -6,7 +6,7 @@ MACHINE_IP = "192.168.133.100"
 DEBUG      = "false"
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "bento/centos-7.5"
+  config.vm.box = "bento/centos-7"
   config.vm.box_check_update = false
   # https://github.com/dotless-de/vagrant-vbguest/issues/351
   config.vbguest.auto_update = false if Vagrant.has_plugin?("vagrant-vbguest")
