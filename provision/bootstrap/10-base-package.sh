@@ -1,33 +1,47 @@
 #!/usr/bin/env bash
+#
+# Copyright(c) 2020-2023 eliu (eliuhy@163.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 set -e
 
-MACHINE_IP="$1"
-TEMPDIR="$(mktemp -d)"
-M2_MAJOR="3"
-M2_VERSION="3.9.5"
+# Import environment variables and common functions
+source /vagrant/devbox.sh
 
-# 初始化公共环境变量及函数
-. /vagrant/scripts/common/profile.env
+readonly TEMPDIR="$(mktemp -d)"
+readonly M2_MAJOR="3"
+readonly M2_VERSION="3.9.5"
 
 # ----------------------------------------------------------------
-# 设置环境变量
+# Set up environment variables
 # ----------------------------------------------------------------
 setup_env() {
-  info "Setting up environment ..."
+  log::info "Setting up environment ..."
   cat > /etc/profile.d/devbox.sh << EOF
 export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}
 export PATH=\$MAVEN_HOME/bin:/opt/${NODE_FILENAME}/bin:/usr/local/bin:\$PATH
 export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)
 export TZ=Asia/Shanghai
 EOF
-  . /etc/profile > /dev/null
+  source /etc/profile > /dev/null
 }
 
 # ----------------------------------------------------------------
-# 设置地址IP映射
+# Setup hosts
 # ----------------------------------------------------------------
 setup_hosts() {
-  info "Setting up machine hosts ..."
+  log::info "Setting up machine hosts ..."
   if ! cat /etc/hosts | grep dev.$APP_DOMAIN > /dev/null; then
     cat >> /etc/hosts << EOF
 $MACHINE_IP dev.$APP_DOMAIN
@@ -40,10 +54,10 @@ EOF
 }
 
 # ----------------------------------------------------------------
-# 解决 DNS 无法解析导致安装包超时的问题
+# Resolve DNS issue
 # ----------------------------------------------------------------
 resolve_dns() {
-  info "Find network interface with real internet connection..."
+  log::info "Find network interface with real internet connection..."
   local network_uuid=
   for uuid in $(nmcli -get-values UUID conn show --active); do
     if [ "auto" = "$(nmcli -terse conn show uuid $uuid | grep ipv4.method | awk -F '[:/]' '{print $2}')" ]; then
@@ -52,25 +66,25 @@ resolve_dns() {
   done
 
   if [ -z $network_uuid ]; then
-    warn "Failed to locate correct network interface."
+    log::warn "Failed to locate correct network interface."
     return 1
   fi
 
-  info "Resolving DNS..."
-  for nameserver in $(cat /vagrant/user-config/nameserver.conf); do
-    info "Adding nameserver $nameserver ..."
+  log::info "Resolving DNS..."
+  for nameserver in $(cat /vagrant/config/nameserver.conf); do
+    log::info "Adding nameserver $nameserver ..."
     nmcli con mod $network_uuid +ipv4.dns $nameserver
   done
 
-  info "Restarting network manager..."
+  log::info "Restarting network manager..."
   systemctl restart NetworkManager
 }
 
 # ----------------------------------------------------------------
-# 替换默认的软件源
+# Change repo mirror to aliyun
 # ----------------------------------------------------------------
 accelerate_repo() {
-  info "Acceleratiing your repository..."
+  log::info "Acceleratiing your repository..."
   # https://developer.aliyun.com/mirror/rockylinux
   sed -i.bak \
     -e 's|^mirrorlist=|#mirrorlist=|g' \
@@ -80,58 +94,57 @@ accelerate_repo() {
 }
 
 # ----------------------------------------------------------------
-# 安装基础依赖包
+# Install base packages
 # ----------------------------------------------------------------
 install_base_packages() {
-  info "Installing base packages ..."
+  log::info "Installing base packages ..."
   dnf install -y \
     java-1.8.0-openjdk-devel \
     git \
     python3-pip \
     podman \
     vim
-  info "Installing compose implementation..."
+  log::info "Installing compose implementation..."
   su - vagrant <<EOF
 pip3 install podman-compose -i https://mirrors.aliyun.com/pypi/simple
 EOF
-  info "Accelerating container registry..."
+  log::info "Accelerating container registry..."
   mv /etc/containers/registries.conf /etc/containers/registries.conf.bak
-  \cp -f /vagrant/user-config/registries.conf /etc/containers/registries.conf
+  \cp -f /vagrant/config/registries.conf /etc/containers/registries.conf
 }
 
 # ----------------------------------------------------------------
-# 安装 Maven
+# Install Maven
 # ----------------------------------------------------------------
 install_maven() {
   if sys_already_installed mvn; then
-    info "Maven has been previously installed."
+    log::info "Maven has been previously installed."
   else
-    info "Installing Maven ..."
+    log::info "Installing Maven ..."
     local download_url=https://mirrors.aliyun.com/apache/maven/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-maven-${M2_VERSION}-bin.tar.gz
-    info "Downloading ${download_url}"
+    log::info "Downloading ${download_url}"
     curl -sSL ${download_url} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
-    info "Extracting files to /opt ..."
+    log::info "Extracting files to /opt ..."
     tar zxf "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz" -C /opt > /dev/null
     # 配置国内源
     mkdir -p $VAGRANT_HOME/.m2
-    cp /vagrant/user-config/maven-settings.xml $VAGRANT_HOME/.m2/settings.xml
+    cp /vagrant/config/maven-settings.xml $VAGRANT_HOME/.m2/settings.xml
     chown -R vagrant:vagrant $VAGRANT_HOME/.m2
   fi
 }
 
 # ----------------------------------------------------------------
-# 确认所有软件的版本
+# Verify all versions of installed components
 # ----------------------------------------------------------------
 verify_versions() {
-  info "VERIFY PACKAGE VERSION..."
-  sys_already_installed node   && echo "Node   version: $(node -v)"
-  sys_already_installed npm    && echo "NPM    version: $(npm -v)"
-  sys_already_installed lerna  && echo "lerna  version: $(lerna -v)"
-  sys_already_installed yarn   && echo "yarn   version: $(yarn -v)"
-  sys_already_installed java   && echo "java   version: $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}')"
-  sys_already_installed mvn    && echo "mvn    version: $(mvn -version | head -n 1 | awk '{print $3}')"
-  sys_already_installed git    && echo "git    version: $(git version | awk '{print $3}')"
-  sys_already_installed podman && echo "podman version: $(podman version | grep Version | head -n 1 | awk '{print $2}')"
+  log::info "VERIFY PACKAGE VERSION..."
+  cat << EOF | column -t -N "SOFTWARE,VERSION"
+  -------- -------
+  $(installed java   && echo "OpenJDK      $(color::green $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}'))")
+  $(installed mvn    && echo "Apache_Maven $(color::green $(mvn -version | head -n 1 | awk '{print $3}'))")
+  $(installed git    && echo "Git          $(color::green $(git version | awk '{print $3}'))")
+  $(installed podman && echo "Podmam       $(color::green $(podman version | grep Version | head -n 1 | awk '{print $2}'))")
+EOF
 }
 
 {

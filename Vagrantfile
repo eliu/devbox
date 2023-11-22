@@ -1,7 +1,22 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+#
+# Copyright(c) 2020-2023 eliu (eliuhy@163.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-# 根据实际情况调整，一般保持默认即可
+# Change as needed
 MACHINE_IP = "192.168.133.100"
 DEBUG      = "false"
 
@@ -16,26 +31,25 @@ Vagrant.configure("2") do |config|
     vb.memory = "8192"
   end
 
-  # 执行引导脚本安装基础环境
-  config.vm.provision "shell", inline: <<-SHELL
-    export DEBUG=#{DEBUG}
-    for script in /vagrant/scripts/bootstrap/*.sh; do
-      $script #{MACHINE_IP} || exit $?
-    done
-  SHELL
+  # Bootstrap step right after `vagrant up`
+  config.vm.provision "shell" do |s|
+    s.path       = "provision/bootstrap.sh"
+    s.args       = ["#{MACHINE_IP}", "#{DEBUG}"]
+    s.keep_color = true
+  end
 
-  # 启动基础服务
-  config.vm.provision "base-service", type: "shell", run: "never", privileged: false, inline: <<-SHELL
-    /vagrant/scripts/provisioner/install-base-services.sh
-  SHELL
+  # Provision base services using podman compose
+  config.vm.provision "base-services", type: "shell", run: "never", privileged: false,
+    keep_color: true,
+    path: "provision/base-services.sh"
 
-  # 检查基础服务是否运行正常
-  config.vm.provision "health-check", type: "shell", run: "never", privileged: false, inline: <<-SHELL
-    /vagrant/scripts/provisioner/health-check.sh
-  SHELL
+  # Check if all base services are under normal status
+  config.vm.provision "health-check", type: "shell", run: "never", privileged: false,
+    keep_color: true,
+    path: "provision/health-check.sh"
 
   # Install npm, yarn and lerna
-  config.vm.provision "frontend-tools", type: "shell", run: "never", privileged: true, inline: <<-SHELL
-    /vagrant/scripts/provisioner/install-frontend-tools.sh
-  SHELL
+  config.vm.provision "frontend-tools", type: "shell", run: "never", privileged: true,
+    keep_color: true,
+    path: "provision/frontend-tools.sh"
 end
