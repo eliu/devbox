@@ -39,17 +39,17 @@ Vagrant.configure("2") do |config|
   end
 
   # Provision base services using podman compose
-  config.vm.provision "base-services", type: "shell", run: "never", privileged: false,
+  config.vm.provision "base_services", type: "shell", run: "never", privileged: false,
     keep_color: true,
-    path: "provision/base-services.sh"
+    path: "provision/base_services.sh"
 
   # Check if all base services are under normal status
-  config.vm.provision "health-check", type: "shell", run: "never", privileged: false,
+  config.vm.provision "health_check", type: "shell", run: "never", privileged: false,
     keep_color: true,
-    path: "provision/health-check.sh"
+    path: "provision/health_check.sh"
 
   # Install npm, yarn and lerna
-  config.vm.provision "frontend-tools", type: "shell", run: "never", privileged: true,
+  config.vm.provision "frontend_tools", type: "shell", run: "never", privileged: true,
     keep_color: true,
-    path: "provision/frontend-tools.sh"
+    path: "provision/frontend_tools.sh"
 end

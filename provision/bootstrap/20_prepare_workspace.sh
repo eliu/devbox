@@ -23,7 +23,7 @@ source /vagrant/devbox.sh
   DEBUG set -x
   log::info "Deploying base services ..."
   mkdir -p "$APP_HOME"
-  cp -r /vagrant/base-services "$APP_HOME"
+  cp -r /vagrant/base_services "$APP_HOME"
   vagrant::chown "$APP_HOME"
   vagrant::enable_linger
   DEBUG set +x
