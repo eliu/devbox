@@ -18,4 +18,5 @@ set -e
 
 source /vagrant/devbox.sh
 cd "$APP_HOME/base_services"
-sys_already_installed podman-compose && podman-compose up -d mysql redis minio
+sys_already_installed podman-compose && \
+    podman-compose $(! $DEBUG && printf -- "--quiet-pull") up -d mysql redis minio

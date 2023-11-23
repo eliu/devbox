@@ -22,6 +22,7 @@ source /vagrant/devbox.sh
 readonly TEMPDIR="$(mktemp -d)"
 readonly M2_MAJOR="3"
 readonly M2_VERSION="3.9.5"
+readonly M2_URL="https://mirrors.aliyun.com/apache/maven/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-maven-${M2_VERSION}-bin.tar.gz"
 
 # ----------------------------------------------------------------
 # Set up environment variables
@@ -90,7 +91,7 @@ accelerate_repo() {
     -e 's|^mirrorlist=|#mirrorlist=|g' \
     -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
     /etc/yum.repos.d/rocky*.repo
-  dnf makecache
+  dnf $(! $DEBUG && printf -- "-q") makecache
 }
 
 # ----------------------------------------------------------------
@@ -98,7 +99,7 @@ accelerate_repo() {
 # ----------------------------------------------------------------
 install_base_packages() {
   log::info "Installing base packages ..."
-  dnf install -y \
+  dnf install $(! $DEBUG && printf -- "-q") -y \
     java-1.8.0-openjdk-devel \
     git \
     python3-pip \
@@ -106,7 +107,7 @@ install_base_packages() {
     vim
   log::info "Installing compose implementation..."
   su - vagrant <<EOF
-pip3 install podman-compose -i https://mirrors.aliyun.com/pypi/simple
+pip3 $(! $DEBUG && printf -- "-q") install podman-compose -i https://mirrors.aliyun.com/pypi/simple
 EOF
   log::info "Accelerating container registry..."
   mv /etc/containers/registries.conf /etc/containers/registries.conf.bak
@@ -121,9 +122,8 @@ install_maven() {
     log::info "Maven has been previously installed."
   else
     log::info "Installing Maven ..."
-    local download_url=https://mirrors.aliyun.com/apache/maven/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-maven-${M2_VERSION}-bin.tar.gz
-    log::info "Downloading ${download_url}"
-    curl -sSL ${download_url} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
+    log::info "Downloading ${M2_URL}"
+    curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
     log::info "Extracting files to /opt ..."
     tar zxf "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz" -C /opt > /dev/null
     # 配置国内源
@@ -140,10 +140,10 @@ verify_versions() {
   log::info "VERIFY PACKAGE VERSION..."
   cat << EOF | column -t -N "SOFTWARE,VERSION"
   -------- -------
-  $(installed java   && echo "OpenJDK      $(color::green $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}'))")
-  $(installed mvn    && echo "Apache_Maven $(color::green $(mvn -version | head -n 1 | awk '{print $3}'))")
-  $(installed git    && echo "Git          $(color::green $(git version | awk '{print $3}'))")
-  $(installed podman && echo "Podmam       $(color::green $(podman version | grep Version | head -n 1 | awk '{print $2}'))")
+  $(installed java   && echo "OpenJDK $(color::green $(java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}'))")
+  $(installed mvn    && echo "Maven   $(color::green $(mvn -version | head -n 1 | awk '{print $3}'))")
+  $(installed git    && echo "Git     $(color::green $(git version | awk '{print $3}'))")
+  $(installed podman && echo "Podmam  $(color::green $(podman version | grep Version | head -n 1 | awk '{print $2}'))")
 EOF
 }
 

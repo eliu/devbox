@@ -19,7 +19,7 @@ source /vagrant/devbox.sh
 
 readonly NODE_VERSION="20.9.0"
 readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
-readonly URL="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
+readonly NODE_URL="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
 
 post_setup() {
   log::info "Setting up context..."
@@ -32,8 +32,8 @@ post_setup() {
 install_node() {
   if ! sys_already_installed npm; then
     log::info "Installing node and npm..."
-    log::info "Downloading ${URL}"
-    curl -sSL ${URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
+    log::info "Downloading ${NODE_URL}"
+    curl -sSL ${NODE_URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
     tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
     post_setup
   fi
