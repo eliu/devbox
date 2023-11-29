@@ -5,11 +5,13 @@ source /vagrant/lib/modules/vagrant.sh
 # Initialize workspace for container services
 # ----------------------------------------------------------------
 basesvc::init() {
-  log::info "Deploying base services ..."
-  mkdir -p "$APP_HOME"
-  \cp -r /vagrant/etc/basesvc "$APP_HOME/"
-  vagrant::chown "$APP_HOME"
-  vagrant::enable_linger
+  [[ -d $APP_HOME/basesvc ]] || {
+    log::info "Deploying base services ..."
+    mkdir -p "$APP_HOME"
+    \cp -r /vagrant/etc/basesvc "$APP_HOME/"
+    vagrant::chown "$APP_HOME"
+    vagrant::enable_linger
+  }
 }
 
 basesvc::up() {
