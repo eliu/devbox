@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+set -e
+source /vagrant/lib/modules/basesvc.sh
+
 export MACHINE_IP=$1
 export DEBUG=$2
 
-for script in /vagrant/provision/bootstrap/*.sh; do
-  $script || exit $?
-done
+basesvc::up

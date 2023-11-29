@@ -15,16 +15,5 @@
 # limitations under the License.
 #
 set -e
-
-# 初始化公共环境变量及函数
-source /vagrant/devbox.sh
-
-{
-  DEBUG set -x
-  log::info "Deploying base services ..."
-  mkdir -p "$APP_HOME"
-  cp -r /vagrant/base_services "$APP_HOME"
-  vagrant::chown "$APP_HOME"
-  vagrant::enable_linger
-  DEBUG set +x
-}
+source /vagrant/lib/modules/basesvc.sh
+basesvc::ps

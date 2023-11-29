@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Copyright(c) 2020-2023 eliu (eliuhy@163.com)
 #
@@ -13,14 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-readonly GRN="\e[32m"        # green color
-readonly YLW="\e[33m"        # yellow color
-readonly RED="\e[91m"        # red color
-readonly RST="\e[39m"        # reset color
+set -e
+source /vagrant/lib/modules/installer.sh
 
-color::green() { echo -e "$GRN$@$RST"
-}
-color::yellow() { echo -e "$YLW$@$RST"
-}
-color::red() { echo -e "$RED$@$RST"
-}
+installer:fe
+print_versions

@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # Copyright(c) 2020-2023 eliu (eliuhy@163.com)
 #
@@ -14,8 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -e
+GRN="\e[32m"        # green color
+YLW="\e[33m"        # yellow color
+RED="\e[91m"        # red color
+RST="\e[39m"        # reset color
 
-source /vagrant/devbox.sh
-cd "$APP_HOME/base_services"
-sys_already_installed podman-compose && podman-compose ps
+color::green() { echo -e "$GRN$@$RST"
+}
+color::yellow() { echo -e "$YLW$@$RST"
+}
+color::red() { echo -e "$RED$@$RST"
+}

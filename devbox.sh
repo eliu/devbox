@@ -13,24 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/modules/log.sh
-source /vagrant/modules/vagrant.sh
+source /vagrant/lib/modules/log.sh
 
 export VAGRANT_HOME="/home/vagrant"
 export APP_HOME="/devbox"
 export APP_DOMAIN="example.com"
 
-readonly EXIT_SUCCESS=0
-readonly EXIT_FAILURE=1
-
 # --- common functions definition ---
 DEBUG() { $DEBUG && $@ || true
 }
 sys_already_installed() {
-  local exit_code=$EXIT_SUCCESS
+  local exit_code=0
   while [ $# -gt 0 ]; do
     if ! command -v $1 >/dev/null 2>&1; then
-      exit_code=$EXIT_FAILURE
+      exit_code=1
       break
     fi
     shift
