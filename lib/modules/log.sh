@@ -13,26 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/log.sh
+source /vagrant/lib/modules/color.sh
 
-export VAGRANT_HOME="/home/vagrant"
-export APP_HOME="/devbox"
-export APP_DOMAIN="example.com"
-
-# --- common functions definition ---
-DEBUG() { $DEBUG && $@ || true
+log::info() { echo $(color::green  "[INFO]") $@
 }
-sys_already_installed() {
-  local exit_code=0
-  while [ $# -gt 0 ]; do
-    if ! command -v $1 >/dev/null 2>&1; then
-      exit_code=1
-      break
-    fi
-    shift
-  done
-  return $exit_code
+log::warn() { echo $(color::yellow "[WARN]") $@
 }
-# Make shorhand alias
-shopt -s expand_aliases
-alias installed=sys_already_installed
+log::fata() { echo $(color::red    "[FATA]") $@; exit 1
+}

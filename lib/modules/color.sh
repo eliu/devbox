@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/modules/color.sh
+GRN="\e[32m"        # green color
+YLW="\e[33m"        # yellow color
+RED="\e[91m"        # red color
+RST="\e[39m"        # reset color
 
-log::info() { echo $(color::green  "[INFO]") $@
+color::green() { echo -e "$GRN$@$RST"
 }
-log::warn() { echo $(color::yellow "[WARN]") $@
+color::yellow() { echo -e "$YLW$@$RST"
 }
-log::fata() { echo $(color::red    "[FATA]") $@; exit 1
+color::red() { echo -e "$RED$@$RST"
 }

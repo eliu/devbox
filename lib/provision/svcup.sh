@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Copyright(c) 2020-2023 eliu (eliuhy@163.com)
 #
@@ -13,26 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/log.sh
+set -e
+source /vagrant/lib/modules/basesvc.sh
 
-export VAGRANT_HOME="/home/vagrant"
-export APP_HOME="/devbox"
-export APP_DOMAIN="example.com"
+export MACHINE_IP=$1
+export DEBUG=$2
 
-# --- common functions definition ---
-DEBUG() { $DEBUG && $@ || true
-}
-sys_already_installed() {
-  local exit_code=0
-  while [ $# -gt 0 ]; do
-    if ! command -v $1 >/dev/null 2>&1; then
-      exit_code=1
-      break
-    fi
-    shift
-  done
-  return $exit_code
-}
-# Make shorhand alias
-shopt -s expand_aliases
-alias installed=sys_already_installed
+basesvc::up

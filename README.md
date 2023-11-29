@@ -53,7 +53,7 @@ $ vagrant provision --provision-with base_services
 
 ### 2. health_check
 
-该置备器用于在置备器 `base_services` 执行完之后，查看服务的启动和运行状态。检查的原理实际上就是调用了 `docker-compose ps` 命令。运行该置备器的命令如下：
+该置备器用于在置备器 `base_services` 执行完之后，查看服务的启动和运行状态。检查的原理实际上就是调用了 `podman-compose ps` 命令。运行该置备器的命令如下：
 
 ```shell
 $ vagrant provision --provision-with health_check

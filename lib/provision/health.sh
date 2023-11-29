@@ -15,7 +15,5 @@
 # limitations under the License.
 #
 set -e
-
-source /vagrant/devbox.sh
-cd "$APP_HOME/base_services"
-sys_already_installed podman-compose && podman-compose ps
+source /vagrant/lib/modules/basesvc.sh
+basesvc::ps

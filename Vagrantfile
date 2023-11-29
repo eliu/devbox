@@ -33,23 +33,26 @@ Vagrant.configure("2") do |config|
 
   # Bootstrap step right after `vagrant up`
   config.vm.provision "shell" do |s|
-    s.path       = "provision/bootstrap.sh"
+    s.path       = "lib/provision/bootstrap.sh"
     s.args       = ["#{MACHINE_IP}", "#{DEBUG}"]
     s.keep_color = true
   end
 
   # Provision base services using podman compose
-  config.vm.provision "base_services", type: "shell", run: "never", privileged: false,
-    keep_color: true,
-    path: "provision/base_services.sh"
+  config.vm.provision "base_services", type: "shell", run: "never" do |s|
+    s.privileged = false
+    s.path       = "lib/provision/svcup.sh"
+    s.args       = ["#{MACHINE_IP}", "#{DEBUG}"]
+    s.keep_color = true
+  end
 
   # Check if all base services are under normal status
   config.vm.provision "health_check", type: "shell", run: "never", privileged: false,
     keep_color: true,
-    path: "provision/health_check.sh"
+    path: "lib/provision/health.sh"
 
   # Install npm, yarn and lerna
   config.vm.provision "frontend_tools", type: "shell", run: "never", privileged: true,
     keep_color: true,
-    path: "provision/frontend_tools.sh"
+    path: "lib/provision/fetools.sh"
 end

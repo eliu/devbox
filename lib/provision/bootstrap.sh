@@ -16,7 +16,22 @@
 #
 set -e
 
-source /vagrant/devbox.sh
-cd "$APP_HOME/base_services"
-sys_already_installed podman-compose && \
-    podman-compose $(! $DEBUG && printf -- "--quiet-pull") up -d mysql redis minio
+export MACHINE_IP=$1
+export DEBUG=$2
+
+source /vagrant/lib/modules/setup.sh
+source /vagrant/lib/modules/basesvc.sh
+source /vagrant/lib/modules/installer.sh
+
+DEBUG set -x
+log::info "MACHINE IP -> $MACHINE_IP"
+log::info "DEBUG ENABLED -> $DEBUG"
+setup::hosts
+setup::resolve_dns
+basesvc::init
+installer::base_packages
+installer::maven
+installer::container_runtime
+installer::fe
+installer::print_versions
+DEBUG set +x
