@@ -1,4 +1,18 @@
-source /vagrant/devbox.sh
+#
+# Copyright(c) 2020-2023 Liu Hongyu
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 source /vagrant/lib/modules/accelerator.sh
 
 readonly TEMPDIR="$(mktemp -d)"
@@ -48,10 +62,10 @@ installer::maven() {
     log::info "Maven already existed. Skip installation..."
     return 0
   fi
-  log::info "Installing Maven ..."
+  log::info "Installing Maven..."
   log::info "Downloading ${M2_URL}"
   curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
-  log::info "Extracting files to /opt ..."
+  log::info "Extracting files to /opt..."
   tar zxf "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz" -C /opt > /dev/null
   accelerator::maven
   setup::context "export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}"
