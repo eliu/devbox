@@ -45,7 +45,7 @@ EOF
 # ----------------------------------------------------------------
 installer::maven() {
   if sys_already_installed mvn; then
-    log::info "Maven has been previously installed. Skip installation..."
+    log::info "Maven already existed. Skip installation..."
     return 0
   fi
   log::info "Installing Maven ..."
@@ -63,7 +63,7 @@ installer::maven() {
 # ----------------------------------------------------------------
 installer::fe() {
   if sys_already_installed npm; then
-    log::info "NPM has been previously installed. Skip installation..."
+    log::info "NPM already existed. Skip installation..."
   else
     log::info "Installing node and npm..."
     log::info "Downloading ${NODE_URL}"
@@ -74,7 +74,7 @@ installer::fe() {
   fi
 
   if sys_already_installed yarn lerna; then
-    log::info "Yarn and Lerna have been previously installed. Skip installation..."
+    log::info "Yarn and Lerna already existed. Skip installation..."
   else
     log::info "Installing yarn and lerna..."
     npm install -s -g npm

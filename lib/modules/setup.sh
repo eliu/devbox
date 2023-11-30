@@ -1,5 +1,13 @@
 source /vagrant/devbox.sh
 
+setup::info() {
+  cat << EOF | column -t -s "|"
+$(log::info "MACHINE OS|->|$(cat /etc/system-release)")
+$(log::info "MACHINE IP|->|$MACHINE_IP")
+$(log::info "DEBUG ENABLED|->|$DEBUG")
+EOF
+}
+
 # ----------------------------------------------------------------
 # Set up environment variables
 # ----------------------------------------------------------------
