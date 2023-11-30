@@ -33,7 +33,7 @@ installer::base_packages() {
     return 0
   fi
   accelerator::repo
-  log::info "Installing base packages..."
+  log::info "Installing base packages that may take some time..."
   dnf install $IS_QUIET -y java-1.8.0-openjdk-devel git vim
 }
 
@@ -49,9 +49,9 @@ installer::container_runtime() {
 pip3 $IS_QUIET install podman-compose -i $PIP3_MIRROR
 EOF
   accelerator::container_registry
-  setup::context "export TZ=Asia/Shanghai"
-  setup::context "export PATH=/usr/local/bin:\$PATH"
-  setup::context "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
+  setup::context "TZ" "export TZ=Asia/Shanghai"
+  setup::context "PATH" "export PATH=/usr/local/bin:\$PATH"
+  setup::context "JAVA_HOME" "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
 }
 
 # ----------------------------------------------------------------
@@ -68,8 +68,8 @@ installer::maven() {
   log::info "Extracting files to /opt..."
   tar zxf "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz" -C /opt > /dev/null
   accelerator::maven
-  setup::context "export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}"
-  setup::context "export PATH=\$MAVEN_HOME/bin:\$PATH"
+  setup::context "MAVEN_HOME" "export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}"
+  setup::context "PATH" "export PATH=\$MAVEN_HOME/bin:\$PATH"
 }
 
 # ----------------------------------------------------------------
@@ -83,7 +83,7 @@ installer::fe() {
     log::info "Downloading ${NODE_URL}"
     curl -sSL ${NODE_URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
     tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
-    setup::context "export PATH=/opt/${NODE_FILENAME}/bin:\$PATH"
+    setup::context "PATH" "export PATH=/opt/${NODE_FILENAME}/bin:\$PATH"
     accelerator::npm_registry
   fi
 

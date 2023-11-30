@@ -26,14 +26,17 @@ EOF
 
 # ----------------------------------------------------------------
 # Set up environment variables
+# PARAMETERS
+# $1 -> synopsis
+# $2 -> export statement
 # ----------------------------------------------------------------
 setup::context() {
-  if [[ -n $1 ]]; then
-    log::info "Setting up environment..."
-    echo "$1" >> /etc/profile.d/devbox.sh
+  if [[ -n $2 ]]; then
+    log::info "Setting up environment for $1..."
+    echo "$2" >> /etc/profile.d/devbox.sh
     source /etc/profile > /dev/null
   else
-    log::warn "Context details not provided."
+    log::fata "Context details not provided."
   fi
 }
 
