@@ -24,8 +24,7 @@ source /vagrant/lib/modules/basesvc.sh
 source /vagrant/lib/modules/installer.sh
 
 DEBUG set -x
-log::info "MACHINE IP -> $MACHINE_IP"
-log::info "DEBUG ENABLED -> $DEBUG"
+setup::info
 setup::hosts
 setup::resolve_dns
 basesvc::init

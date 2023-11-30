@@ -16,6 +16,5 @@
 #
 set -e
 source /vagrant/lib/modules/installer.sh
-
-installer:fe
-print_versions
+installer::fe
+installer::print_versions

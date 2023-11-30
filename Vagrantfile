@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
   config.vm.network "private_network", ip: "#{MACHINE_IP}"
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 4
-    vb.memory = "8192"
+    vb.memory = "4096"
   end
 
   # Bootstrap step right after `vagrant up`
@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
   end
 
   # Provision base services using podman compose
-  config.vm.provision "base_services", type: "shell", run: "never" do |s|
+  config.vm.provision "base services", type: "shell", run: "never" do |s|
     s.privileged = false
     s.path       = "lib/provision/svcup.sh"
     s.args       = ["#{MACHINE_IP}", "#{DEBUG}"]
@@ -47,12 +47,12 @@ Vagrant.configure("2") do |config|
   end
 
   # Check if all base services are under normal status
-  config.vm.provision "health_check", type: "shell", run: "never", privileged: false,
+  config.vm.provision "health check", type: "shell", run: "never", privileged: false,
     keep_color: true,
     path: "lib/provision/health.sh"
 
   # Install npm, yarn and lerna
-  config.vm.provision "frontend_tools", type: "shell", run: "never", privileged: true,
+  config.vm.provision "frontend tools", type: "shell", run: "never", privileged: true,
     keep_color: true,
     path: "lib/provision/fetools.sh"
 end
