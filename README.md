@@ -1,8 +1,10 @@
 # Consistent Development Box (devbox)
 
-本项目的目标是可以在本地快速启动用于搭建应用环境的基础虚拟机模板，开发人员可以得到一个与服务器环境一致的本地开发环境，彻底解决初次搭建开发环境所经历的痛苦与无奈。另外，本项目是一个基于 Vagrant 和 VirtualBox 的搭建的，所以开发人员还是需要一些少量的软件安装工作。
+本项目可以在本地快速启动用于本地开发的基础虚拟机模板，可提供容器化环境、Java后端和前端编译工具等。开发人员可以得到一个与服务器环境一致的本地开发环境，彻底解决初次搭建开发环境所经历的痛苦与无奈。
 
-## 前置条件
+项目是一个基于 Vagrant 和 VirtualBox 的搭建的，所以开发人员还是需要一些少量的软件安装工作。
+
+## 前置软件安装
 
 安装最新版 Vagrant： [Vagrant | HashiCorp Developer](https://developer.hashicorp.com/vagrant)
 
@@ -10,7 +12,7 @@
 
 ## 预装软件清单
 
-预置安装的软件如下：
+开发环境启动后会安装如下软件到虚拟机中：
 
 | 软件/系统        | 版本                       | 备注                           |
 | ---------------- | -------------------------- | ------------------------------ |
@@ -25,7 +27,7 @@
 | Lerna            | 基于 Node 版本安装的最新版 | 由置备器 `frontend tools` 提供 |
 | Yarn             | 基于 Node 版本安装的最新版 | 由置备器 `frontend tools` 提供 |
 
-Docker Compose 将启动以下基础服务：
+容器化置备器 `base services` 将启动以下基础服务：
 
 | 服务  | 版本                         | 备注                          |
 | ----- | ---------------------------- | ----------------------------- |
@@ -33,9 +35,9 @@ Docker Compose 将启动以下基础服务：
 | redis | 4-alpine                     | 由置备器 `base services` 提供 |
 | minio | RELEASE.2019-10-12T01-39-57Z | 由置备器 `base services` 提供 |
 
-## 启动命令
+## 一键启动
 
-```shell
+```bash
 $ vagrant up
 ```
 
@@ -45,9 +47,9 @@ $ vagrant up
 
 ### 1. base services
 
-该置备器用来以容器化的方式、通过 Docker Compose 来启动基础服务，包括 `mysql` ，`redis` 和 `MinIO`。 用户可以在 `base services/docker-compose.yaml` 中查看详细的定义。启动置备器的命令如下：
+该置备器用来以容器化的方式、通过 Docker Compose 来启动基础服务，包括 `mysql` ，`redis` 和 `MinIO`。 用户可以在 `etc/basesvc/docker-compose.yaml` 中查看详细的定义。启动置备器的命令如下：
 
-```shell
+```bash
 $ vagrant provision --provision-with "base services"
 ```
 
@@ -55,7 +57,7 @@ $ vagrant provision --provision-with "base services"
 
 该置备器用于在置备器 `base services` 执行完之后，查看服务的启动和运行状态。检查的原理实际上就是调用了 `podman-compose ps` 命令。运行该置备器的命令如下：
 
-```shell
+```bash
 $ vagrant provision --provision-with "health check"
 ```
 
@@ -69,9 +71,17 @@ mysql   docker-entrypoint.sh mysqld      Up             0.0.0.0:3306->3306/tcp, 
 redis   docker-entrypoint.sh redis ...   Up             0.0.0.0:6379->6379/tcp
 ```
 
+### 3. frontend tools
+
+该置备器用户安装前端工具 Node, Yarn 和 Lerna，命令如下：
+
+```bash
+$ vagrant provision --provision-with "frontend tools"
+```
+
 ## 进入开发环境
 
-```shell
+```bash
 $ vagrant ssh
 $ cd /devbox
 ```
