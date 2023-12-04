@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+source /vagrant/lib/modules/setup.sh
 source /vagrant/lib/modules/accelerator.sh
 
 readonly TEMPDIR="$(mktemp -d)"
