@@ -18,4 +18,4 @@ set -e
 source /vagrant/devbox.sh
 source /vagrant/lib/modules/installer.sh
 installer::fe
-installer::wrap_up
+setup::wrap_up

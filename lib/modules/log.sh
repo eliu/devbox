@@ -15,9 +15,9 @@
 #
 source /vagrant/lib/modules/color.sh
 
-log::info() { echo $(color::green  "[INFO]") $@
+log::info() { echo $(style::green  "[INFO]") $@
 }
-log::warn() { echo $(color::yellow "[WARN]") $@
+log::warn() { echo $(style::yellow "[WARN]") $@
 }
-log::fata() { echo $(color::red    "[FATA]") $@; exit 1
+log::fata() { echo $(style::red    "[FATA]") $@; exit 1
 }

@@ -18,9 +18,9 @@ YLW="\e[33m"        # yellow color
 RED="\e[91m"        # red color
 RST="\e[39m"        # reset color
 
-color::green() { echo -e "$GRN$@$RST"
+style::green() { echo -e "$GRN$@$RST"
 }
-color::yellow() { echo -e "$YLW$@$RST"
+style::yellow() { echo -e "$YLW$@$RST"
 }
-color::red() { echo -e "$RED$@$RST"
+style::red() { echo -e "$RED$@$RST"
 }
