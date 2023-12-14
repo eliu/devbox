@@ -27,6 +27,7 @@ DEBUG set -x
 setup::hosts
 setup::resolve_dns
 basesvc::init
+installer::epel
 installer::base_packages
 installer::maven
 installer::container_runtime

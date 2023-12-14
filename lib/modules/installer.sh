@@ -46,6 +46,17 @@ installer::base_packages() {
   }
 }
 
+# ----------------------------------------------------------------
+# Install and accelerate epel repo
+# ----------------------------------------------------------------
+installer::epel() {
+  dnf list installed "epel*" > /dev/null 2>&1 || {
+    log::info "Setting up epel repo..."
+    dnf install $IS_QUIET -y https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm
+    accelerator::epel
+  }
+}
+
 installer::container_runtime() {
   sys_already_installed podman || {
     log::info "Installing podman..."
