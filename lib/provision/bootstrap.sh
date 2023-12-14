@@ -31,5 +31,5 @@ basesvc::init
 installer::base_packages
 installer::maven
 installer::container_runtime
-installer::print_versions
+installer::wrap_up
 DEBUG set +x

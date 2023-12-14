@@ -14,10 +14,8 @@
 # limitations under the License.
 #
 source /vagrant/lib/modules/vagrant.sh
-
-export PIP3_MIRROR="https://mirrors.aliyun.com/pypi/simple"
-export M2_MIRROR="https://mirrors.aliyun.com/apache/maven"
-export NODE_MIRROR="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
+export ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
+export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
 
 # ----------------------------------------------------------------
 # Change maven mirror to aliyun
@@ -56,4 +54,8 @@ accelerator::container_registry() {
 accelerator::npm_registry() {
   log::info "Accelerating npm registry..."
   npm config set registry https://registry.npmmirror.com
+}
+
+accelerator::pip() {
+  pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple
 }

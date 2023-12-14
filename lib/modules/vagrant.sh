@@ -27,3 +27,11 @@ vagrant::chown() {
 vagrant::enable_linger() {
   loginctl enable-linger vagrant
 }
+
+vagrant::exec() {
+  [[ "root" = $(whoami) ]] && su vagrant -c "$@"
+}
+
+vagrant::env() {
+  vagrant::exec "echo \"$@\" >> \$HOME/.bashrc"
+}
