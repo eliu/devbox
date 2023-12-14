@@ -14,10 +14,47 @@
 # limitations under the License.
 #
 source /vagrant/lib/modules/vagrant.sh
+export ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
+export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
 
-export PIP3_MIRROR="https://mirrors.aliyun.com/pypi/simple"
-export M2_MIRROR="https://mirrors.aliyun.com/apache/maven"
-export NODE_MIRROR="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
+# ----------------------------------------------------------------
+# Make cache for repo (right after accelerating repo...)
+# ----------------------------------------------------------------
+accelerator::make_cache() {
+  log::info "Making cache. This may take a few seconds..."
+  dnf $(! $DEBUG && printf -- "-q") makecache
+}
+
+# ----------------------------------------------------------------
+# Change repo mirror to aliyun
+# ----------------------------------------------------------------
+accelerator::repo() {
+  grep aliyun /etc/yum.repos.d/rocky.repo > /dev/null 2>&1 || {
+    log::info "Accelerating base repo..."
+    # https://developer.aliyun.com/mirror/rockylinux
+    sed -i.bak \
+      -e 's|^mirrorlist=|#mirrorlist=|g' \
+      -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
+      /etc/yum.repos.d/rocky*.repo
+    accelerator::make_cache
+  }
+}
+
+# ----------------------------------------------------------------
+# Accelerate epel repo
+# ----------------------------------------------------------------
+accelerator::epel() {
+  grep aliyun /etc/yum.repos.d/epel.repo > /dev/null 2>&1 || {
+    log::info "Accelerating epel repo..."
+    # https://developer.aliyun.com/mirror/epel/?spm=a2c6h.25603864.0.0.43455993b5QGRS
+    rm -f /etc/yum.repos.d/epel-cisco-openh264.repo
+    sed -i.bak \
+      -e 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.aliyun.com|' \
+      -e 's|^metalink|#metalink|' \
+      /etc/yum.repos.d/epel*
+    accelerator::make_cache
+  }
+}
 
 # ----------------------------------------------------------------
 # Change maven mirror to aliyun
@@ -26,19 +63,6 @@ accelerator::maven() {
   mkdir -p $VAGRANT_HOME/.m2
   cp /vagrant/etc/maven-settings.xml $VAGRANT_HOME/.m2/settings.xml
   vagrant::chown $VAGRANT_HOME/.m2
-}
-
-# ----------------------------------------------------------------
-# Change repo mirror to aliyun
-# ----------------------------------------------------------------
-accelerator::repo() {
-  log::info "Accelerating your repository..."
-  # https://developer.aliyun.com/mirror/rockylinux
-  sed -i.bak \
-    -e 's|^mirrorlist=|#mirrorlist=|g' \
-    -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
-    /etc/yum.repos.d/rocky*.repo
-  dnf $(! $DEBUG && printf -- "-q") makecache
 }
 
 # ----------------------------------------------------------------
@@ -56,4 +80,8 @@ accelerator::container_registry() {
 accelerator::npm_registry() {
   log::info "Accelerating npm registry..."
   npm config set registry https://registry.npmmirror.com
+}
+
+accelerator::pip() {
+  pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple
 }

@@ -24,12 +24,12 @@ source /vagrant/lib/modules/basesvc.sh
 source /vagrant/lib/modules/installer.sh
 
 DEBUG set -x
-setup::info
 setup::hosts
 setup::resolve_dns
 basesvc::init
+installer::epel
 installer::base_packages
 installer::maven
 installer::container_runtime
-installer::print_versions
+setup::wrap_up
 DEBUG set +x
