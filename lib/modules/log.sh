@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/color.sh
+source /vagrant/lib/modules/style.sh
 
 log::info() { echo $(style::green  "[INFO]") $@
 }
