@@ -15,8 +15,6 @@
 # limitations under the License.
 #
 set -e
-export MACHINE_IP=$1
-export DEBUG=$2
+export DEBUG=${1:-false}
 source /vagrant/devbox.sh
-source /vagrant/lib/modules/basesvc.sh
 basesvc::up

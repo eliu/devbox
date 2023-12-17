@@ -28,13 +28,19 @@ basesvc::init() {
   }
 }
 
+# ----------------------------------------------------------------
+# Start base services
+# ----------------------------------------------------------------
 basesvc::up() {
   local is_quiet=$(! $DEBUG && printf -- "--quiet-pull")
   cd "$APP_HOME/basesvc"
-  sys_already_installed podman-compose && podman-compose up $is_quiet -d mysql redis minio
+  test::cmd podman-compose && podman-compose up $is_quiet -d mysql redis minio
 }
 
+# ----------------------------------------------------------------
+# Print running status of base services
+# ----------------------------------------------------------------
 basesvc::ps() {
   cd "$APP_HOME/basesvc"
-  sys_already_installed podman-compose && podman-compose ps
+  test::cmd podman-compose && podman-compose ps
 }

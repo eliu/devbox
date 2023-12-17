@@ -30,14 +30,10 @@ readonly IS_QUIET=$(! $DEBUG && printf -- "-q")
 # Install base packages
 # ----------------------------------------------------------------
 installer::base_packages() {
-  sys_already_installed java vim git pip3 || {
-    log::info "Accelerating base repo..."
+  test::cmd java vim git pip3 || {
     accelerator::repo
-    
     log::info "Installing base packages that may take some time..."
     dnf install $IS_QUIET -y java-1.8.0-openjdk-devel git vim python3-pip
-    
-    log::info "Accelerating python pip..."
     accelerator::pip
     
     setup::context "TZ" "export TZ=Asia/Shanghai"
@@ -57,8 +53,11 @@ installer::epel() {
   }
 }
 
+# ----------------------------------------------------------------
+# Install container runtime
+# ----------------------------------------------------------------
 installer::container_runtime() {
-  sys_already_installed podman || {
+  test::cmd podman || {
     log::info "Installing podman..."
     dnf install $IS_QUIET -y podman
 
@@ -72,7 +71,7 @@ installer::container_runtime() {
 # Install Maven
 # ----------------------------------------------------------------
 installer::maven() {
-  sys_already_installed mvn || {
+  test::cmd mvn || {
     log::info "Downloading ${M2_URL}"
     curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
     log::info "Extracting files to /opt..."
@@ -87,7 +86,7 @@ installer::maven() {
 # Install frontend tools
 # ----------------------------------------------------------------
 installer::fe() {
-  sys_already_installed npm || {
+  test::cmd npm || {
     log::info "Installing node and npm..."
     log::info "Downloading ${NODE_URL}"
     curl -sSL ${NODE_URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
@@ -96,7 +95,7 @@ installer::fe() {
     accelerator::npm_registry
   }
 
-  sys_already_installed yarn lerna || {
+  test::cmd yarn lerna || {
     log::info "Installing yarn and lerna..."
     npm install -s -g npm
     npm install -s -g yarn
