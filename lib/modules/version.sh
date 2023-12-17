@@ -13,19 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/devbox.sh
 # ----------------------------------------------------------------
 # Print os info
 # ----------------------------------------------------------------
 version::os() {
   cat /etc/system-release
-}
-
-# ----------------------------------------------------------------
-# Print current static ip address
-# ----------------------------------------------------------------
-version::ip() {
-  ip -br -f inet addr | grep 192 | awk -F'[ /]+' '{print $3}'
 }
 
 # ----------------------------------------------------------------
@@ -39,33 +31,33 @@ version::epel(){
 # Print currently installed java version
 # ----------------------------------------------------------------
 version::java() {
-  installed java && java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}'
+  test::cmd java && java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}'
 }
 
 # ----------------------------------------------------------------
 # Print currently installed maven version
 # ----------------------------------------------------------------
 version::maven() {
-  installed mvn && mvn -version | head -n 1 | awk '{print $3}'
+  test::cmd mvn && mvn -version | head -n 1 | awk '{print $3}'
 }
 
 # ----------------------------------------------------------------
 # Print currently installed git version
 # ----------------------------------------------------------------
 version::git() {
-  installed git && git version | awk '{print $3}'
+  test::cmd git && git version | awk '{print $3}'
 }
 
 # ----------------------------------------------------------------
 # Print currently installed podman version
 # ----------------------------------------------------------------
 version::podman() {
-  installed podman && podman version | grep Version | head -n 1 | awk '{print $2}'
+  test::cmd podman && podman version | grep Version | head -n 1 | awk '{print $2}'
 }
 
 # ----------------------------------------------------------------
 # Print version of the component commonly using form `command -v`
 # ----------------------------------------------------------------
 version::common() {
-  installed $1 && $1 -v
+  test::cmd $1 && $1 -v
 }

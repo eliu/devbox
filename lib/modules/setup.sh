@@ -13,10 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/version.sh
-SETUP_NETWORK_UUID=
-SETUP_DNS_LIST=
-
+source $MODULE_ROOT/version.sh
+source $MODULE_ROOT/network.sh
 # ----------------------------------------------------------------
 # Set up environment variables
 # PARAMETERS
@@ -37,75 +35,45 @@ setup::context() {
 # Setup hosts
 # ----------------------------------------------------------------
 setup::hosts() {
+  network::gather_facts
   cat /etc/hosts | grep dev.$APP_DOMAIN > /dev/null || {
     log::info "Setting up machine hosts..."
     cat >> /etc/hosts << EOF
-$MACHINE_IP dev.$APP_DOMAIN
-$MACHINE_IP db.$APP_DOMAIN
-$MACHINE_IP redis.$APP_DOMAIN
-$MACHINE_IP file.$APP_DOMAIN
+${network_facts[ip]} dev.$APP_DOMAIN
+${network_facts[ip]} db.$APP_DOMAIN
+${network_facts[ip]} redis.$APP_DOMAIN
+${network_facts[ip]} file.$APP_DOMAIN
 EOF
-    hostnamectl set-hostname dev.$APP_DOMAIN
   }
 }
 
-setup::network_uuid() {
-  for uuid in $(nmcli -get-values UUID conn show --active); do
-    if [ "auto" = "$(nmcli -terse conn show uuid $uuid | grep ipv4.method | awk -F '[:/]' '{print $2}')" ]
-    then
-      SETUP_NETWORK_UUID=$uuid
-    fi
-  done
-
-  if [ -z $SETUP_NETWORK_UUID ]; then
-    log::warn "Failed to locate correct network interface."
-    return 1
-  fi
-}
-
-setup::dns_list() {
-  SETUP_DNS_LIST=$(nmcli -terse conn show $SETUP_NETWORK_UUID | grep "ipv4.dns:" | cut -d: -f2)
-}
-
 # ----------------------------------------------------------------
-# Resolve DNS issue
+# Call network module to resolve dns
 # ----------------------------------------------------------------
-setup::resolve_dns() {
-  setup::network_uuid
-  setup::dns_list
-  
-  [[ -n $SETUP_DNS_LIST && -n $SETUP_NETWORK_UUID ]] || {
-    log::info "Resolving dns..."
-    for nameserver in $(cat /vagrant/etc/nameserver.conf); do
-      log::info "Adding nameserver $nameserver..."
-      nmcli con mod $SETUP_NETWORK_UUID +ipv4.dns $nameserver
-    done
-
-    log::info "Restarting network manager..."
-    systemctl restart NetworkManager
-  }
+setup::dns() {
+  network::resolve_dns
 }
 
 # ----------------------------------------------------------------
 # Print machine info and flags
 # ----------------------------------------------------------------
 setup::wrap_up() {
-  setup::network_uuid
-  setup::dns_list
+  network::gather_facts
   log::info "All set! Wrap it up..."
   cat << EOF | column -t -s "|" -N CATEGORY,NAME,VALUE
---------|----|-----
+----------------|----|-----
 PROPERTY|MACHINE_OS  |$(style::green $(version::os))
-PROPERTY|MACHINE_IP  |$(style::green $(version::ip))
-PROPERTY|USING_DNS |$(style::green $SETUP_DNS_LIST)
---------|----|-----
-SOFTWARE|OPENJDK     |$(style::green $(version::java))
-SOFTWARE|MAVEN       |$(style::green $(version::maven))
-SOFTWARE|GIT         |$(style::green $(version::git))
-SOFTWARE|PODMAN      |$(style::green $(version::podman))
-SOFTWARE|NODE        |$(style::green $(version::common node))
-SOFTWARE|NPM         |$(style::green $(version::common npm))
-SOFTWARE|YARN        |$(style::green $(version::common yarn))
-SOFTWARE|LERNA       |$(style::green $(version::common lerna))
+PROPERTY|MACHINE_IP  |$(style::green ${network_facts[ip]})
+PROPERTY|USING_DNS   |$(style::green ${network_facts[dns]})
+----------------|----|-----
+SOFTWARE VERSION|EPEL   |$(style::green $(version::epel))
+SOFTWARE VERSION|OPENJDK|$(style::green $(version::java))
+SOFTWARE VERSION|MAVEN  |$(style::green $(version::maven))
+SOFTWARE VERSION|GIT    |$(style::green $(version::git))
+SOFTWARE VERSION|PODMAN |$(style::green $(version::podman))
+SOFTWARE VERSION|NODE   |$(style::green $(version::common node))
+SOFTWARE VERSION|NPM    |$(style::green $(version::common npm))
+SOFTWARE VERSION|YARN   |$(style::green $(version::common yarn))
+SOFTWARE VERSION|LERNA  |$(style::green $(version::common lerna))
 EOF
 }

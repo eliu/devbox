@@ -13,26 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/log.sh
-
 export VAGRANT_HOME="/home/vagrant"
 export APP_HOME="/devbox"
 export APP_DOMAIN="example.com"
+export MODULE_ROOT="/vagrant/lib/modules"
+source $MODULE_ROOT/log.sh
+source $MODULE_ROOT/test.sh
+source $MODULE_ROOT/basesvc.sh
+source $MODULE_ROOT/installer.sh
 
 # --- common functions definition ---
-DEBUG() { $DEBUG && $@ || true
+devbox::exec_if_debug() {
+  $DEBUG && $@ || true
 }
-sys_already_installed() {
-  local exit_code=0
-  while [ $# -gt 0 ]; do
-    if ! command -v $1 >/dev/null 2>&1; then
-      exit_code=1
-      break
-    fi
-    shift
-  done
-  return $exit_code
+
+devbox::bootstrap() {
+  devbox::exec_if_debug set -x
+  setup::hosts
+  setup::dns
+  installer::base_packages
+  installer::epel
+  installer::maven
+  installer::container_runtime
+  basesvc::init
+  [[ "fe" = $1 ]] && installer::fe
+  setup::wrap_up
+  devbox::exec_if_debug set +x
 }
-# Make shorhand alias
-shopt -s expand_aliases
-alias installed=sys_already_installed

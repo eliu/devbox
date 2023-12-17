@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
   # Bootstrap step right after `vagrant up`
   config.vm.provision "shell" do |s|
     s.path       = "lib/provision/bootstrap.sh"
-    s.args       = ["#{MACHINE_IP}", "#{DEBUG}"]
+    s.args       = ["#{DEBUG}"]
     s.keep_color = true
   end
 
@@ -42,7 +42,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "base services", type: "shell", run: "never" do |s|
     s.privileged = false
     s.path       = "lib/provision/svcup.sh"
-    s.args       = ["#{MACHINE_IP}", "#{DEBUG}"]
+    s.args       = ["#{DEBUG}"]
     s.keep_color = true
   end
 

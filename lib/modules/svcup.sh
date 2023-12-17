@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 set -e
-export DEBUG=${1:-false}
+export DEBUG=${1:false}
 source /vagrant/devbox.sh
-devbox::bootstrap
+source /vagrant/lib/modules/basesvc.sh
+basesvc::up

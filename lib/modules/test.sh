@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # Copyright(c) 2020-2023 Liu Hongyu
 #
@@ -14,7 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -e
-export DEBUG=${1:-false}
-source /vagrant/devbox.sh
-devbox::bootstrap
+# ----------------------------------------------------------------
+# Check if specified commands exists
+# #@: commands separated with spaces
+# ----------------------------------------------------------------
+test::cmd() {
+  local exit_code=0
+  while [ $# -gt 0 ]; do
+    if ! command -v $1 >/dev/null 2>&1; then
+      exit_code=1
+      break
+    fi
+    shift
+  done
+  return $exit_code
+}
