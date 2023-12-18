@@ -17,5 +17,5 @@
 set -e
 export DEBUG=${1:-false}
 source /vagrant/devbox.sh
-source /vagrant/lib/modules/basesvc.sh
+source $MODULE_ROOT/basesvc.sh
 basesvc::ps

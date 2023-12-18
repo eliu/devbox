@@ -19,10 +19,14 @@ source /vagrant/lib/modules/vagrant.sh
 # Initialize workspace for container services
 # ----------------------------------------------------------------
 basesvc::init() {
+  test::cmd podman podman-compose || {
+    log::fatal "Container runtime podman or compose not installed."
+  }
+
   [[ -d $APP_HOME/basesvc ]] || {
     log::info "Deploying base services..."
-    mkdir -p "$APP_HOME"
-    \cp -r /vagrant/etc/basesvc "$APP_HOME/"
+    sudo mkdir -p "$APP_HOME"
+    sudo \cp -r /vagrant/etc/basesvc "$APP_HOME/"
     vg::chown "$APP_HOME"
     vg::enable_linger
   }

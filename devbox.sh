@@ -17,9 +17,8 @@ export VAGRANT_HOME="/home/vagrant"
 export APP_HOME="/devbox"
 export APP_DOMAIN="example.com"
 export MODULE_ROOT="/vagrant/lib/modules"
-source $MODULE_ROOT/loggiing.sh
+source $MODULE_ROOT/logging.sh
 source $MODULE_ROOT/test.sh
-source $MODULE_ROOT/basesvc.sh
 source $MODULE_ROOT/installer.sh
 
 # --- common functions definition ---
@@ -35,7 +34,6 @@ devbox::bootstrap() {
   installer::epel
   installer::maven
   installer::container_runtime
-  basesvc::init
   [[ "fe" = $1 ]] && installer::fe
   setup::wrap_up
   devbox::exec_if_debug set +x
