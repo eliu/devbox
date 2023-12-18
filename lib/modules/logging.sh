@@ -23,10 +23,10 @@ log::info() { echo $(style::green  "[INFO]") $@
 # ----------------------------------------------------------------
 # Logging message at warning level
 # ----------------------------------------------------------------
-log::warn() { echo $(style::yellow "[WARN]") $@
+log::warn() { echo $(style::yellow "[WARN] $@")
 }
 # ----------------------------------------------------------------
 # Logging message at fatal level
 # ----------------------------------------------------------------
-log::fata() { echo $(style::red    "[FATA]") $@; exit 1
+log::fata() { echo $(style::red "[FATA] $@"); exit 1
 }
