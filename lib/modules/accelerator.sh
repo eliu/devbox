@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/vagrant.sh
+source $MODULE_ROOT/vagrant.sh
 export ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
 export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
 

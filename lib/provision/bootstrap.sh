@@ -17,4 +17,5 @@
 set -e
 export DEBUG=${1:-false}
 source /vagrant/devbox.sh
-devbox::bootstrap
+source $MODULE_ROOT/installer.sh
+installer::setup_and_install

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/vagrant.sh
+source $MODULE_ROOT/vagrant.sh
 
 # ----------------------------------------------------------------
 # Initialize workspace for container services
