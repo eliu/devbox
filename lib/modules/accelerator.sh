@@ -65,7 +65,7 @@ accelerator::maven() {
     log::info "Accelerating maven repo..."
     mkdir -p $VAGRANT_HOME/.m2
     cp /vagrant/etc/maven-settings.xml $VAGRANT_HOME/.m2/settings.xml
-    vagrant::chown $VAGRANT_HOME/.m2
+    vg::chown $VAGRANT_HOME/.m2
   }
 }
 

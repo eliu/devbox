@@ -17,7 +17,7 @@ export VAGRANT_HOME="/home/vagrant"
 export APP_HOME="/devbox"
 export APP_DOMAIN="example.com"
 export MODULE_ROOT="/vagrant/lib/modules"
-source $MODULE_ROOT/log.sh
+source $MODULE_ROOT/loggiing.sh
 source $MODULE_ROOT/test.sh
 source $MODULE_ROOT/basesvc.sh
 source $MODULE_ROOT/installer.sh

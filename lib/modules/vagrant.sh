@@ -15,7 +15,7 @@
 #
 
 # Change owner to vagrant
-vagrant::chown() {
+vg::chown() {
   chown -R vagrant:vagrant $1
 }
 
@@ -24,14 +24,14 @@ vagrant::chown() {
 # error acquiring lock 0 for container <containerID>: file exists
 # ---
 # Issue: https://github.com/containers/podman/issues/16784#issuecomment-1711364992
-vagrant::enable_linger() {
+vg::enable_linger() {
   loginctl enable-linger vagrant
 }
 
-vagrant::exec() {
+vg::exec() {
   [[ "root" = $(whoami) ]] && su vagrant -c "$@"
 }
 
-vagrant::env() {
-  vagrant::exec "echo \"$@\" >> \$HOME/.bashrc"
+vg::env() {
+  vg::exec "echo \"$@\" >> \$HOME/.bashrc"
 }

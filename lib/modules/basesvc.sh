@@ -23,8 +23,8 @@ basesvc::init() {
     log::info "Deploying base services..."
     mkdir -p "$APP_HOME"
     \cp -r /vagrant/etc/basesvc "$APP_HOME/"
-    vagrant::chown "$APP_HOME"
-    vagrant::enable_linger
+    vg::chown "$APP_HOME"
+    vg::enable_linger
   }
 }
 

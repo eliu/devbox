@@ -62,7 +62,7 @@ installer::container_runtime() {
     dnf install $IS_QUIET -y podman
 
     log::info "Installing podman compose as user vagrant..."
-    vagrant::exec "pip3 $IS_QUIET install podman-compose"
+    vg::exec "pip3 $IS_QUIET install podman-compose"
     accelerator::container_registry
   }
 }
