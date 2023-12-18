@@ -18,13 +18,13 @@
 # #@: commands separated with spaces
 # ----------------------------------------------------------------
 test::cmd() {
-  local exit_code=0
+  local rc=0
   while [ $# -gt 0 ]; do
     if ! command -v $1 >/dev/null 2>&1; then
-      exit_code=1
+      rc=1
       break
     fi
     shift
   done
-  return $exit_code
+  return $rc
 }

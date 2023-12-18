@@ -13,18 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source /vagrant/lib/modules/vagrant.sh
+source $MODULE_ROOT/vagrant.sh
 
 # ----------------------------------------------------------------
 # Initialize workspace for container services
 # ----------------------------------------------------------------
 basesvc::init() {
+  test::cmd podman podman-compose || {
+    log::fatal "Container runtime podman or compose not installed."
+  }
+
   [[ -d $APP_HOME/basesvc ]] || {
     log::info "Deploying base services..."
-    mkdir -p "$APP_HOME"
-    \cp -r /vagrant/etc/basesvc "$APP_HOME/"
-    vagrant::chown "$APP_HOME"
-    vagrant::enable_linger
+    sudo mkdir -p "$APP_HOME"
+    sudo \cp -r /vagrant/etc/basesvc "$APP_HOME/"
+    vg::chown "$APP_HOME"
+    vg::enable_linger
   }
 }
 

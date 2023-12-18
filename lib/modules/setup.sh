@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-source $MODULE_ROOT/version.sh
 source $MODULE_ROOT/network.sh
 # ----------------------------------------------------------------
 # Set up environment variables
@@ -27,7 +26,7 @@ setup::context() {
     echo "$2" >> /etc/profile.d/devbox.sh
     source /etc/profile > /dev/null
   else
-    log::fata "Context details not provided."
+    log::fatal "Context details not provided."
   fi
 }
 
@@ -52,28 +51,4 @@ EOF
 # ----------------------------------------------------------------
 setup::dns() {
   network::resolve_dns
-}
-
-# ----------------------------------------------------------------
-# Print machine info and flags
-# ----------------------------------------------------------------
-setup::wrap_up() {
-  network::gather_facts
-  log::info "All set! Wrap it up..."
-  cat << EOF | column -t -s "|" -N CATEGORY,NAME,VALUE
-----------------|----|-----
-PROPERTY|MACHINE_OS  |$(style::green $(version::os))
-PROPERTY|MACHINE_IP  |$(style::green ${network_facts[ip]})
-PROPERTY|USING_DNS   |$(style::green ${network_facts[dns]})
-----------------|----|-----
-SOFTWARE VERSION|EPEL   |$(style::green $(version::epel))
-SOFTWARE VERSION|OPENJDK|$(style::green $(version::java))
-SOFTWARE VERSION|MAVEN  |$(style::green $(version::maven))
-SOFTWARE VERSION|GIT    |$(style::green $(version::git))
-SOFTWARE VERSION|PODMAN |$(style::green $(version::podman))
-SOFTWARE VERSION|NODE   |$(style::green $(version::common node))
-SOFTWARE VERSION|NPM    |$(style::green $(version::common npm))
-SOFTWARE VERSION|YARN   |$(style::green $(version::common yarn))
-SOFTWARE VERSION|LERNA  |$(style::green $(version::common lerna))
-EOF
 }

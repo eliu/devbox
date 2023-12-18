@@ -13,10 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# Execute command as vagrant
+vg::exec() {
+  [[ "root" = $(whoami) ]] && su vagrant -c "$@" || $@
+}
+
+# Execute command as root. User vagrant can become root via sudo
+vg::sudo_exec() {
+  local context="$MODULE_ROOT/vagrant.sh"
+  [[ "root" = $(whoami) ]] && $@ || sudo bash -c ". $context && $@"
+}
 
 # Change owner to vagrant
-vagrant::chown() {
-  chown -R vagrant:vagrant $1
+vg::chown() {
+  vg::sudo_exec "chown -R vagrant:vagrant $1"
 }
 
 # Fix the following error that will cause all running containers stopped unexpectly.
@@ -24,14 +34,11 @@ vagrant::chown() {
 # error acquiring lock 0 for container <containerID>: file exists
 # ---
 # Issue: https://github.com/containers/podman/issues/16784#issuecomment-1711364992
-vagrant::enable_linger() {
-  loginctl enable-linger vagrant
+vg::enable_linger() {
+  vg::sudo_exec "loginctl enable-linger vagrant"
 }
 
-vagrant::exec() {
-  [[ "root" = $(whoami) ]] && su vagrant -c "$@"
-}
-
-vagrant::env() {
-  vagrant::exec "echo \"$@\" >> \$HOME/.bashrc"
+# Append content to vagrant's context
+vg::env() {
+  vg::exec "echo \"$@\" >> \$HOME/.bashrc"
 }

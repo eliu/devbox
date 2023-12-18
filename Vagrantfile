@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
   # Check if all base services are under normal status
   config.vm.provision "health check", type: "shell", run: "never", privileged: false,
     keep_color: true,
-    path: "lib/provision/health.sh"
+    path: "lib/provision/svcps.sh"
 
   # Install npm, yarn and lerna
   config.vm.provision "frontend tools", type: "shell", run: "never", privileged: true,
