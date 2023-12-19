@@ -16,6 +16,7 @@
 source $MODULE_ROOT/vagrant.sh
 export ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
 export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
+IS_QUIET=$(log::is_verbose || printf -- "-q")
 
 # ----------------------------------------------------------------
 # Make cache for repo (right after accelerating repo...)
@@ -23,7 +24,7 @@ export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
 # ----------------------------------------------------------------
 accelerator__make_cache() {
   log::info "Making cache. This may take a few seconds..."
-  dnf $(! $DEBUG && printf -- "-q") makecache
+  dnf $IS_QUIET makecache
 }
 
 # ----------------------------------------------------------------

@@ -13,14 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-GRN="\e[32m"        # green color
-YLW="\e[33m"        # yellow color
-RED="\e[91m"        # red color
-RST="\e[39m"        # reset color
+STYLE_GREEN="\e[32m"
+STYLE_YELLOW="\e[33m"
+STYLE_RED="\e[91m"
+STYLE_CYAN="\e[36m"
+STYLE_RESET="\e[39m"
 
-style::green() { echo -e "$GRN$@$RST"
+style::green() { echo -e "$STYLE_GREEN$@$STYLE_RESET"
 }
-style::yellow() { echo -e "$YLW$@$RST"
+style::yellow() { echo -e "$STYLE_YELLOW$@$STYLE_RESET"
 }
-style::red() { echo -e "$RED$@$RST"
+style::red() { echo -e "$STYLE_RED$@$STYLE_RESET"
+}
+style::cyan() { echo -e "$STYLE_CYAN$@$STYLE_RESET"
 }

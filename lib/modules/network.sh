@@ -15,12 +15,64 @@
 #
 declare -A network_facts
 # ----------------------------------------------------------------
-# Get ipv4 method, the possible value might be auto or manual
-# $1 -> Network uuid
+# Get uuids of all active connections
 # Scope: private
 # ----------------------------------------------------------------
-network__ipv4_method() {
-  nmcli -terse conn show uuid $1 | grep ipv4.method | awk -F '[:/]' '{print $2}'
+network__get_active_uuids() {
+  nmcli -get-values UUID conn show --active
+}
+
+# ----------------------------------------------------------------
+# Get ipv4 method, the possible value might be auto or manual
+# $1 -> network uuid
+# Scope: private
+# ----------------------------------------------------------------
+network__get_ipv4_method_of() {
+  nmcli -terse conn show uuid $1 \
+    | grep ipv4.method \
+    | awk -F '[:/]' '{print $2}'
+}
+
+# ----------------------------------------------------------------
+# Gather network uuid with auto ipv4 method
+# Scope: private
+# ----------------------------------------------------------------
+network__gather_uuid_with_auto_method() {
+  log::info "Gathering facts for networks..."
+  for uuid in $(network__get_active_uuids); do
+    [[ "auto" = $(network__get_ipv4_method_of $uuid) ]] && {
+      network_facts[uuid]=$uuid
+      return
+    }
+  done
+  log::fatal "Failed to locate correct network interface."
+}
+
+# ----------------------------------------------------------------
+# Gather dns list of specified network
+# $1 -> network uuid
+# Scope: private
+# ----------------------------------------------------------------
+network__gather_dns_of() {
+  network_facts[dns]=$(nmcli -terse conn show $1 | grep "ipv4.dns:" | cut -d: -f2)
+}
+
+# ----------------------------------------------------------------
+# Gather static ip address
+# Scope: private
+# ----------------------------------------------------------------
+network__gather_static_ip() {
+  network_facts[ip]=$(ip -br -f inet addr | grep 192 | awk -F'[ /]+' '{print $3}')
+}
+
+# ----------------------------------------------------------------
+# Check if any of the facts is absent
+# Scope: private
+# ----------------------------------------------------------------
+network__facts_absent() {
+  [[ -z ${network_facts[uuid]} ]] || \
+  [[ -z ${network_facts[dns]}  ]] || \
+  [[ -z ${network_facts[ip]}   ]]
 }
 
 # ----------------------------------------------------------------
@@ -30,20 +82,16 @@ network__ipv4_method() {
 # 3. dns list  -> exported to network_facts[dns]
 # ----------------------------------------------------------------
 network::gather_facts() {
-  [[ -n ${network_facts[dns]} ]] || {
-    log::info "Gathering facts for networks..."
-    for uuid in $(nmcli -get-values UUID conn show --active); do
-      [ "auto" = "$(network__ipv4_method $uuid)" ] && network_facts[uuid]=$uuid
-    done
+  if network__facts_absent; then
+    [[ -n ${network_facts[uuid]} ]] || network__gather_uuid_with_auto_method
+    [[ -n ${network_facts[dns]}  ]] || network__gather_dns_of ${network_facts[uuid]}
+    [[ -n ${network_facts[ip]}   ]] || network__gather_static_ip
 
-    if [ -z ${network_facts[uuid]} ]; then
-      log::warn "Failed to locate correct network interface."
-      return 1
-    fi
-
-    network_facts[dns]=$(nmcli -terse conn show ${network_facts[uuid]} | grep "ipv4.dns:" | cut -d: -f2)
-    network_facts[ip]=$(ip -br -f inet addr | grep 192 | awk -F'[ /]+' '{print $3}')
-  }
+    log::verbose "network_facts:"
+    for key in ${!network_facts[@]}; do
+      log::verbose "$key -> ${network_facts[$key]}"
+    done | column -t
+  fi
 }
 
 # ----------------------------------------------------------------
@@ -64,4 +112,4 @@ network::resolve_dns() {
   }
 }
 
-export NETWORK_FACTS
+export network_facts
