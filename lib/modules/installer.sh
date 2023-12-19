@@ -24,7 +24,7 @@ readonly M2_URL="$ACC_MIRROR_M2/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-
 readonly NODE_VERSION="20.9.0"
 readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 readonly NODE_URL="$ACC_MIRROR_NODE/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
-readonly IS_QUIET=$(! $DEBUG && printf -- "-q")
+readonly IS_QUIET=$([[ $LOGGING_LEVEL =~ debug|verbose ]] || printf -- "-q")
 
 # ----------------------------------------------------------------
 # Install base packages
@@ -60,6 +60,7 @@ installer__epel() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__container_runtime() {
+  config::get installer.container.enabled || return 0
   test::cmd podman || {
     log::info "Installing podman..."
     dnf install $IS_QUIET -y podman
@@ -75,6 +76,7 @@ installer__container_runtime() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__maven() {
+  config::get installer.maven.enabled || return 0
   test::cmd mvn || {
     log::info "Downloading ${M2_URL}"
     curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
@@ -122,9 +124,9 @@ PROPERTY|MACHINE_IP  |$(style::green ${network_facts[ip]})
 PROPERTY|USING_DNS   |$(style::green ${network_facts[dns]})
 ----------------|----|-----
 SOFTWARE VERSION|EPEL   |$(style::green $(version::epel))
+SOFTWARE VERSION|GIT    |$(style::green $(version::git))
 SOFTWARE VERSION|OPENJDK|$(style::green $(version::java))
 SOFTWARE VERSION|MAVEN  |$(style::green $(version::maven))
-SOFTWARE VERSION|GIT    |$(style::green $(version::git))
 SOFTWARE VERSION|PODMAN |$(style::green $(version::podman))
 SOFTWARE VERSION|NODE   |$(style::green $(version::common node))
 SOFTWARE VERSION|NPM    |$(style::green $(version::common npm))

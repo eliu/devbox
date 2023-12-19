@@ -36,7 +36,7 @@ basesvc::init() {
 # Start base services
 # ----------------------------------------------------------------
 basesvc::up() {
-  local is_quiet=$(! $DEBUG && printf -- "--quiet-pull")
+  local is_quiet=$([[ $LOGGING_LEVEL =~ debug|verbose ]] || printf -- "--quiet-pull")
   cd "$APP_HOME/basesvc"
   test::cmd podman-compose && podman-compose up $is_quiet -d mysql redis minio
 }

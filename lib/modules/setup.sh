@@ -34,6 +34,7 @@ setup::context() {
 # Setup hosts
 # ----------------------------------------------------------------
 setup::hosts() {
+  config::get setup.hosts.enabled || return 0
   cat /etc/hosts | grep dev.$APP_DOMAIN > /dev/null || {
     log::info "Setting up machine hosts..."
     network::gather_facts
