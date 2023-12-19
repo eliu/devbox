@@ -18,7 +18,6 @@
 
 # Change as needed
 MACHINE_IP = "192.168.133.100"
-DEBUG      = "false"
 
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/rockylinux-9"
@@ -34,7 +33,6 @@ Vagrant.configure("2") do |config|
   # Bootstrap step right after `vagrant up`
   config.vm.provision "shell" do |s|
     s.path       = "lib/provision/bootstrap.sh"
-    s.args       = ["#{DEBUG}"]
     s.keep_color = true
   end
 
@@ -42,7 +40,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision "base services", type: "shell", run: "never" do |s|
     s.privileged = false
     s.path       = "lib/provision/svcup.sh"
-    s.args       = ["#{DEBUG}"]
     s.keep_color = true
   end
 

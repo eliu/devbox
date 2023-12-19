@@ -20,8 +20,3 @@ export MODULE_ROOT="/vagrant/lib/modules"
 source $MODULE_ROOT/config.sh
 source $MODULE_ROOT/logging.sh
 source $MODULE_ROOT/test.sh
-
-# --- common functions definition ---
-devbox::exec_if_debug() {
-  $DEBUG && $@ || true
-}

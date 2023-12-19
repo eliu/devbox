@@ -24,7 +24,7 @@ readonly M2_URL="$ACC_MIRROR_M2/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-
 readonly NODE_VERSION="20.9.0"
 readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 readonly NODE_URL="$ACC_MIRROR_NODE/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
-readonly IS_QUIET=$([[ $LOGGING_LEVEL =~ debug|verbose ]] || printf -- "-q")
+readonly IS_QUIET=$(log::is_verbose || printf -- "-q")
 
 # ----------------------------------------------------------------
 # Install base packages
@@ -139,7 +139,7 @@ EOF
 # Print machine info and flags
 # ----------------------------------------------------------------
 installer::setup_and_install() {
-  devbox::exec_if_debug set -x
+  log::is_verbose && set -x || true
   setup::dns
   setup::hosts
   installer__base_packages
@@ -148,5 +148,5 @@ installer::setup_and_install() {
   installer__container_runtime
   [[ "fe" = $1 ]] && installer__fe
   installer__wrap_up
-  devbox::exec_if_debug set +x
+  log::is_verbose && set +x || true
 }

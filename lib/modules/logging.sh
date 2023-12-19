@@ -39,3 +39,10 @@ log::verbose() {
     echo $(style::cyan "VERBOSE: $@")
   fi
 }
+
+# ----------------------------------------------------------------
+# Check if we're in verbose mode or lower level logging
+# ----------------------------------------------------------------
+log::is_verbose() {
+  [[ $LOGGING_LEVEL =~ debug|verbose ]]
+}
