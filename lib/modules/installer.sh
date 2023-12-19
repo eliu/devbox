@@ -138,8 +138,8 @@ EOF
 # ----------------------------------------------------------------
 installer::setup_and_install() {
   devbox::exec_if_debug set -x
-  setup::hosts
   setup::dns
+  setup::hosts
   installer__base_packages
   installer__epel
   installer__maven
