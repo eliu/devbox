@@ -34,9 +34,9 @@ setup::context() {
 # Setup hosts
 # ----------------------------------------------------------------
 setup::hosts() {
-  network::gather_facts
   cat /etc/hosts | grep dev.$APP_DOMAIN > /dev/null || {
     log::info "Setting up machine hosts..."
+    network::gather_facts
     cat >> /etc/hosts << EOF
 ${network_facts[ip]} dev.$APP_DOMAIN
 ${network_facts[ip]} db.$APP_DOMAIN
