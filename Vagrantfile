@@ -27,8 +27,8 @@ Vagrant.configure("2") do |config|
   config.vbguest.auto_update = false if Vagrant.has_plugin?("vagrant-vbguest")
   config.vm.network "private_network", ip: "#{MACHINE_IP}"
   config.vm.provider "virtualbox" do |vb|
-    vb.cpus = 4
-    vb.memory = "4096"
+    vb.cpus = 2
+    vb.memory = "2048"
   end
 
   # Bootstrap step right after `vagrant up`
