@@ -17,5 +17,7 @@
 set -e
 source /vagrant/devbox.sh
 source $MODULE_ROOT/basesvc.sh
+log::is_debug_enabled && set -x || true
 basesvc::init
 basesvc::up
+log::is_debug_enabled && set +x || true

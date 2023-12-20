@@ -16,7 +16,7 @@
 source $MODULE_ROOT/vagrant.sh
 export ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
 export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
-IS_QUIET=$(log::is_verbose || printf -- "-q")
+IS_QUIET=$(log::is_verbose_enabled || printf -- "-q")
 
 # ----------------------------------------------------------------
 # Make cache for repo (right after accelerating repo...)

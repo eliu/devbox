@@ -47,9 +47,4 @@ Vagrant.configure("2") do |config|
   config.vm.provision "health check", type: "shell", run: "never", privileged: false,
     keep_color: true,
     path: "lib/provision/svcps.sh"
-
-  # Install npm, yarn and lerna
-  config.vm.provision "frontend tools", type: "shell", run: "never", privileged: true,
-    keep_color: true,
-    path: "lib/provision/fetools.sh"
 end
