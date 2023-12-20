@@ -103,11 +103,11 @@ network::resolve_dns() {
   [[ -n ${network_facts[dns]} && -n ${network_facts[uuid]} ]] || {
     log::info "Resolving dns..."
     for nameserver in $(cat /vagrant/etc/nameserver.conf); do
-      log::info "Adding nameserver $nameserver..."
+      log::verbose "Adding nameserver $nameserver..."
       nmcli con mod ${network_facts[uuid]} +ipv4.dns $nameserver
     done
 
-    log::info "Restarting network manager..."
+    log::verbose "Restarting network manager..."
     systemctl restart NetworkManager
   }
 }
