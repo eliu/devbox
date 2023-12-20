@@ -40,24 +40,24 @@
 
 ## 配置选项
 
-`devbox` 中所安装的所有基础软件都可通过配置文件来控制是否要安装，配置文件路径为 `etc/devbox.properties`，支持的选项及说明如下表所示：
+`devbox` 中所安装的所有基础软件都可通过配置文件来控制是否要安装，配置文件路径为 `etc/devbox.properties`，支持的选项及说明如下表所示。默认选项是全部禁用的，开发人员按需更改选项，如需启用，将选项值从 `false` 改为 `true` 即可。
 
-| 选项                          | 类型   | 含义                                               | 默认值  |
-| ----------------------------- | ------ | -------------------------------------------------- | ------- |
-| `logging.level`               | 字符串 | 日志打印级别，可选值有`info`, `verbose` 和 `debug` | `info`  |
-| `setup.hosts.enabled`         | 布尔   | 是否配置域名和 IP 映射关系                         | `false` |
-| `installer.git.enabled`       | 布尔   | 是否安装 `Git`                                     | `true`  |
-| `installer.pip3.enabled`      | 布尔   | 是否安装 `Python3` 和 `pip3`                       | `true`  |
-| `installer.openjdk.enabled`   | 布尔   | 是否安装 `Java`                                    | `true`  |
-| `installer.epel.enabled`      | 布尔   | 是否安装 `EPEL`                                    | `true`  |
-| `installer.maven.enabled`     | 布尔   | 是否安装 `Maven`                                   | `true`  |
-| `installer.container.enabled` | 布尔   | 是否安装 `容器运行时`，`Podman` 和 `Podman Compose`            | `true`  |
-| `installer.frontend.enabled`  | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna`    | `true`  |
+| 选项                          | 类型   | 含义                                                | 默认值  |
+| ----------------------------- | ------ | --------------------------------------------------- | ------- |
+| `logging.level`               | 字符串 | 日志打印级别，可选值有`info`, `verbose` 和 `debug`  | `info`  |
+| `setup.hosts.enabled`         | 布尔   | 是否配置域名和 IP 映射关系                          | `false` |
+| `installer.git.enabled`       | 布尔   | 是否安装 `Git`                                      | `false` |
+| `installer.pip3.enabled`      | 布尔   | 是否安装 `Python3` 和 `pip3`                        | `false` |
+| `installer.openjdk.enabled`   | 布尔   | 是否安装 `Java`                                     | `false` |
+| `installer.epel.enabled`      | 布尔   | 是否安装 `EPEL`                                     | `false` |
+| `installer.maven.enabled`     | 布尔   | 是否安装 `Maven`                                    | `false` |
+| `installer.container.enabled` | 布尔   | 是否安装 `容器运行时`，`Podman` 和 `Podman Compose` | `false` |
+| `installer.frontend.enabled`  | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna`     | `false` |
 
 以上选项既可以在一键启动命令 `vagrant up` 之前配置，也可以在其执行之后配置，需要注意以下两点：
 
 1. 软件一但安装，禁用安装选项也不会将其从虚拟机中卸载
-2. 修改完配置项之后，可以运行 `vagrant provision` 生效配置
+2. **修改完配置项之后，可以运行 `vagrant provision` 生效配置**
 
 ## 一键启动
 
