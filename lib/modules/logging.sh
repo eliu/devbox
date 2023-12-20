@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 source $MODULE_ROOT/style.sh
-export LOGGING_LEVEL=$(config::get logging.level)
+LOGGING_LEVEL=$(config::get_from_file logging.level)
 
 # ----------------------------------------------------------------
 # Logging message at info level
@@ -35,14 +35,17 @@ log::fatal() { echo $(style::red "[FATA] $@"); exit 1
 # Logging a verbose message
 # ----------------------------------------------------------------
 log::verbose() { 
-  if [[ $LOGGING_LEVEL =~ debug|verbose ]]; then 
-    echo $(style::cyan "VERBOSE: $@")
-  fi
+  log::is_verbose_enabled && echo $(style::cyan "VERBOSE: $@") || true
 }
-
 # ----------------------------------------------------------------
 # Check if we're in verbose mode or lower level logging
 # ----------------------------------------------------------------
-log::is_verbose() {
+log::is_verbose_enabled() {
   [[ $LOGGING_LEVEL =~ debug|verbose ]]
+}
+# ----------------------------------------------------------------
+# Check if we're in debug mode
+# ----------------------------------------------------------------
+log::is_debug_enabled() {
+  [[ $LOGGING_LEVEL =~ debug ]]
 }

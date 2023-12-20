@@ -22,26 +22,42 @@
 
 开发环境启动后会安装如下软件到虚拟机中：
 
-| 软件/系统        | 版本                       | 备注                           |
-| ---------------- | -------------------------- | ------------------------------ |
-| Vagrant Box 镜像 | `bento/rockylinux-9`       | 基础镜像                       |
-| OpenJDK          | 8                          |                                |
-| Apache Maven     | 3.9.5                      |                                |
-| Git              | 2.29.3                     | 版本控制                       |
-| Podman           | 4.4.1                      | 容器运行时                     |
-| Podman Compose   | 1.0.6                      | 容器编排工具                   |
-| Node.js          | 20.9.0                     | 由置备器 `frontend tools` 提供 |
-| npm              | 10.2.4                     | 由置备器 `frontend tools` 提供 |
-| Lerna            | 基于 Node 版本安装的最新版 | 由置备器 `frontend tools` 提供 |
-| Yarn             | 基于 Node 版本安装的最新版 | 由置备器 `frontend tools` 提供 |
+| 软件/系统        | 版本                         | 备注                          |
+| ---------------- | ---------------------------- | ----------------------------- |
+| Vagrant Box 镜像 | `bento/rockylinux-9`         | 基础镜像                      |
+| OpenJDK          | 8                            |                               |
+| Apache Maven     | 3.9.5                        |                               |
+| Git              | 2.29.3                       | 版本控制                      |
+| Podman           | 4.4.1                        | 容器运行时                    |
+| Podman Compose   | 1.0.6                        | 容器编排工具                  |
+| Node.js          | 20.9.0                       | 前端工具                      |
+| npm              | 10.2.4                       | 前端软件包管理工具            |
+| Lerna            | 基于 Node 版本安装的最新版   | 前端软件包管理工具            |
+| Yarn             | 基于 Node 版本安装的最新版   | 前端软件包管理工具            |
+| MySQL            |                              | 由 `base services` 置备器提供 |
+| Redis            | 4-alpine                     | 由 `base services` 置备器提供 |
+| MinIO            | RELEASE.2019-10-12T01-39-57Z | 由 `base services` 置备器提供 |
 
-容器化置备器 `base services` 将启动以下基础服务：
+## 配置选项
 
-| 服务  | 版本                         | 备注                          |
-| ----- | ---------------------------- | ----------------------------- |
-| mysql | 5.7                          | 由置备器 `base services` 提供 |
-| redis | 4-alpine                     | 由置备器 `base services` 提供 |
-| minio | RELEASE.2019-10-12T01-39-57Z | 由置备器 `base services` 提供 |
+`devbox` 中所安装的所有基础软件都可通过配置文件来控制是否要安装，配置文件路径为 `etc/devbox.properties`，支持的选项及说明如下表所示。默认选项是全部禁用的，开发人员按需更改选项，如需启用，将选项值从 `false` 改为 `true` 即可。
+
+| 选项                          | 类型   | 含义                                                | 默认值  |
+| ----------------------------- | ------ | --------------------------------------------------- | ------- |
+| `logging.level`               | 字符串 | 日志打印级别，可选值有`info`, `verbose` 和 `debug`  | `info`  |
+| `setup.hosts.enabled`         | 布尔   | 是否配置域名和 IP 映射关系                          | `false` |
+| `installer.git.enabled`       | 布尔   | 是否安装 `Git`                                      | `false` |
+| `installer.pip3.enabled`      | 布尔   | 是否安装 `Python3` 和 `pip3`                        | `false` |
+| `installer.openjdk.enabled`   | 布尔   | 是否安装 `Java`                                     | `false` |
+| `installer.epel.enabled`      | 布尔   | 是否安装 `EPEL`                                     | `false` |
+| `installer.maven.enabled`     | 布尔   | 是否安装 `Maven`                                    | `false` |
+| `installer.container.enabled` | 布尔   | 是否安装 `容器运行时`，`Podman` 和 `Podman Compose` | `false` |
+| `installer.frontend.enabled`  | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna`     | `false` |
+
+以上选项既可以在一键启动命令 `vagrant up` 之前配置，也可以在其执行之后配置，需要注意以下两点：
+
+1. 软件一但安装，禁用安装选项也不会将其从虚拟机中卸载
+2. **修改完配置项之后，可以运行 `vagrant provision` 生效配置**
 
 ## 一键启动
 
@@ -53,16 +69,13 @@ $ vagrant up
 
 > 提示：初次运行时由于开发人员本地还未下载任何 Vagrant 基础镜像文件，因此初次运行时会花费更多的时间来下载基础镜像。此处暂无国内环境下的提速方法，所以此时体验不佳。但随后的初始化过程由于使用了国内加速镜像站，速度上会有保障。
 
-安装过程中会输出一些日志，最后会输出所有已安装成功的软件版本，日志内容大致如下：
+安装过程中会输出日志，最后会输出所有已安装成功的软件版本清单，日志内容大致如下：
 
 ```shell
 default: [INFO] Gathering facts for networks...
 default: [INFO] Setting up machine hosts...
 default: [INFO] Gathering facts for networks...
 default: [INFO] Resolving dns...
-default: [INFO] Adding nameserver 8.8.8.8...
-default: [INFO] Adding nameserver 114.114.114.114...
-default: [INFO] Restarting network manager...
 default: [INFO] Accelerating base repo...
 default: [INFO] Making cache. This may take a few seconds...
 default: [INFO] Installing base packages that may take some time...
@@ -73,24 +86,29 @@ default: [INFO] Setting up envionment for JAVA_HOME...
 default: [INFO] Setting up epel repo...
 default: [INFO] Accelerating epel repo...
 default: [INFO] Making cache. This may take a few seconds...
-default: [INFO] Downloading https://mirrors.aliyun.com/apache/maven/maven-3/3.9.5/binaries/apache-maven-3.9.5-bin.tar.gz
-default: [INFO] Extracting files to /opt...
 default: [INFO] Accelerating maven repo...
 default: [INFO] Setting up environment for MAVEN_HOME...
 default: [INFO] Setting up environment for PATH...
 default: [INFO] Installing podman...
 default: [INFO] Installing podman compose as user vagrant...
 default: [INFO] Accelerating container registry...
+default: [INFO] Installing node and npm...
+default: [INFO] Setting up environment for PATH...
+default: [INFO] Accelerating npm registry...
+default: [INFO] Installing yarn and lerna...
+default: [INFO] All set! Wrap it up...
 default: CATEGORY          NAME          VALUE
 default: ----------------  ----          -----
 default: PROPERTY          MACHINE_OS    Rocky Linux release 9.2 (Blue Onyx)
 default: PROPERTY          MACHINE_IP    192.168.133.100
 default: PROPERTY          USING_DNS     8.8.8.8,114.114.114.114
 default: ----------------  ----          -----
+default: SOFTWARE VERSION  GIT           2.39.3
 default: SOFTWARE VERSION  EPEL          epel-release.noarch.9-7.el9
 default: SOFTWARE VERSION  OPENJDK       1.8.0_392
 default: SOFTWARE VERSION  MAVEN         3.9.5
-default: SOFTWARE VERSION  GIT           2.39.3
+default: SOFTWARE VERSION  PYTHON3       3.9.16
+default: SOFTWARE VERSION  PIP3          21.2.3
 default: SOFTWARE VERSION  PODMAN        4.6.1
 default: SOFTWARE VERSION  NODE          v20.9.0
 default: SOFTWARE VERSION  NPM           10.2.5
@@ -104,7 +122,15 @@ default: SOFTWARE VERSION  LERNA         8.0.1
 
 ### 1. base services
 
-该置备器用来以容器化的方式、通过 Docker Compose 来启动基础服务，包括 `mysql` ，`redis` 和 `MinIO`。 用户可以在 `etc/basesvc/docker-compose.yaml` 中查看详细的定义。启动置备器的命令如下：
+该置备器用来以容器化的方式、通过 `Podman` 和 `Compose` 来启动基础服务，包括 `mysql` ，`redis` 和 `MinIO`，服务组件版本如下：
+
+| 服务  | 版本                         |
+| ----- | ---------------------------- |
+| mysql | 5.7                          |
+| redis | 4-alpine                     |
+| minio | RELEASE.2019-10-12T01-39-57Z |
+
+你也可以在 `etc/basesvc/docker-compose.yaml` 中查看详细的定义，包括默认的数据库用户名和密码等等。启动置备器的命令如下：
 
 ```bash
 $ vagrant provision --provision-with "base services"
@@ -126,20 +152,5 @@ Name               Command                  State                     Ports
 minio   /usr/bin/docker-entrypoint ...   Up (healthy)   0.0.0.0:9000->9000/tcp
 mysql   docker-entrypoint.sh mysqld      Up             0.0.0.0:3306->3306/tcp, 33060/tcp
 redis   docker-entrypoint.sh redis ...   Up             0.0.0.0:6379->6379/tcp
-```
-
-### 3. frontend tools
-
-该置备器用户安装前端工具 Node, Yarn 和 Lerna，命令如下：
-
-```bash
-$ vagrant provision --provision-with "frontend tools"
-```
-
-## 进入开发环境
-
-```bash
-$ vagrant ssh
-$ cd /devbox
 ```
 

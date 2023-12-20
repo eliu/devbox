@@ -24,23 +24,19 @@ readonly M2_URL="$ACC_MIRROR_M2/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-
 readonly NODE_VERSION="20.9.0"
 readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 readonly NODE_URL="$ACC_MIRROR_NODE/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
-readonly IS_QUIET=$(log::is_verbose || printf -- "-q")
+readonly IS_QUIET_Q=$(log::is_verbose_enabled || printf -- "-q")
+readonly IS_QUIET_S=$(log::is_verbose_enabled || printf -- "-s")
 
 # ----------------------------------------------------------------
-# Install base packages
+# Accelerate repo and context setups
 # Scope: private
 # ----------------------------------------------------------------
-installer__base_packages() {
-  test::cmd java vim git pip3 || {
-    accelerator::repo
-    log::info "Installing base packages that may take some time..."
-    dnf install $IS_QUIET -y java-1.8.0-openjdk-devel git vim python3-pip
-    accelerator::pip
-    
-    setup::context "TZ" "export TZ=Asia/Shanghai"
-    setup::context "PATH" "export PATH=/usr/local/bin:\$PATH"
-    setup::context "JAVA_HOME" "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
-  }
+installer__init() {
+  setup::dns
+  setup::hosts
+  setup::context "TZ" "export TZ=Asia/Shanghai"
+  setup::context "PATH" "export PATH=/usr/local/bin:\$PATH"
+  accelerator::repo
 }
 
 # ----------------------------------------------------------------
@@ -48,10 +44,36 @@ installer__base_packages() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__epel() {
+  config::get installer.epel.enabled || return 0
   dnf list installed "epel*" > /dev/null 2>&1 || {
     log::info "Setting up epel repo..."
-    dnf install $IS_QUIET -y https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm
+    dnf install $IS_QUIET_Q -y https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm
     accelerator::epel
+  }
+}
+
+# ----------------------------------------------------------------
+# Install git
+# Scope: private
+# ----------------------------------------------------------------
+installer__git() {
+  config::get installer.git.enabled || return 0
+  test::cmd git || {
+    log::info "Installing git..."
+    dnf install $IS_QUIET_Q -y git
+  } 
+}
+
+# ----------------------------------------------------------------
+# Install python3 and pip3
+# Scope: private
+# ----------------------------------------------------------------
+installer__pip3() {
+  config::get installer.pip3.enabled || return 0
+  test::cmd python3 pip3 || {
+    log::info "Installing python3-pip..."
+    dnf install $IS_QUIET_Q -y python3-pip
+    accelerator::pip
   }
 }
 
@@ -61,13 +83,28 @@ installer__epel() {
 # ----------------------------------------------------------------
 installer__container_runtime() {
   config::get installer.container.enabled || return 0
+  # check dependencies
+  test::cmd python3 pip3 || log::fatal "You must install python3-pip first!"
   test::cmd podman || {
     log::info "Installing podman..."
-    dnf install $IS_QUIET -y podman
+    dnf install $IS_QUIET_Q -y podman
 
     log::info "Installing podman compose as user vagrant..."
-    vg::exec "pip3 $IS_QUIET install podman-compose"
+    vg::exec "pip3 $IS_QUIET_Q install podman-compose"
     accelerator::container_registry
+  }
+}
+
+# ----------------------------------------------------------------
+# Install openjdk
+# Scope: private
+# ----------------------------------------------------------------
+installer__openjdk() {
+  config::get installer.openjdk.enabled || return 0
+  test::cmd java || {
+    log::info "Installing openjdk-8-devel..."
+    dnf install $IS_QUIET_Q -y java-1.8.0-openjdk-devel
+    setup::context "JAVA_HOME" "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
   }
 }
 
@@ -77,10 +114,13 @@ installer__container_runtime() {
 # ----------------------------------------------------------------
 installer__maven() {
   config::get installer.maven.enabled || return 0
+  # check dependencies
+  test::cmd java || log::fatal "You must install java platform first!"
   test::cmd mvn || {
-    log::info "Downloading ${M2_URL}"
+    log::info "Installing maven..."
+    log::verbose "Downloading ${M2_URL}"
     curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
-    log::info "Extracting files to /opt..."
+    log::verbose "Extracting files to /opt..."
     tar zxf "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz" -C /opt > /dev/null
     accelerator::maven
     setup::context "MAVEN_HOME" "export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}"
@@ -93,10 +133,12 @@ installer__maven() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__fe() {
+  config::get installer.frontend.enabled || return 0
   test::cmd npm || {
     log::info "Installing node and npm..."
-    log::info "Downloading ${NODE_URL}"
+    log::verbose "Downloading ${NODE_URL}"
     curl -sSL ${NODE_URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
+    log::verbose "Extracting files to /opt..."
     tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
     setup::context "PATH" "export PATH=/opt/${NODE_FILENAME}/bin:\$PATH"
     accelerator::npm_registry
@@ -104,9 +146,9 @@ installer__fe() {
 
   test::cmd yarn lerna || {
     log::info "Installing yarn and lerna..."
-    npm install -s -g npm
-    npm install -s -g yarn
-    yarn -s global add lerna
+    npm install $IS_QUIET_S -g npm || true
+    npm install $IS_QUIET_S -g yarn || true
+    yarn $IS_QUIET_S global add lerna || true
   }
 }
 
@@ -123,30 +165,33 @@ PROPERTY|MACHINE_OS  |$(style::green $(version::os))
 PROPERTY|MACHINE_IP  |$(style::green ${network_facts[ip]})
 PROPERTY|USING_DNS   |$(style::green ${network_facts[dns]})
 ----------------|----|-----
-SOFTWARE VERSION|EPEL   |$(style::green $(version::epel))
-SOFTWARE VERSION|GIT    |$(style::green $(version::git))
-SOFTWARE VERSION|OPENJDK|$(style::green $(version::java))
-SOFTWARE VERSION|MAVEN  |$(style::green $(version::maven))
-SOFTWARE VERSION|PODMAN |$(style::green $(version::podman))
-SOFTWARE VERSION|NODE   |$(style::green $(version::common node))
-SOFTWARE VERSION|NPM    |$(style::green $(version::common npm))
-SOFTWARE VERSION|YARN   |$(style::green $(version::common yarn))
-SOFTWARE VERSION|LERNA  |$(style::green $(version::common lerna))
+$(config::get installer.git.enabled && echo "SOFTWARE VERSION|GIT|$(style::green $(version::git))")
+$(config::get installer.epel.enabled && echo "SOFTWARE VERSION|EPEL|$(style::green $(version::epel))")
+$(config::get installer.openjdk.enabled && echo "SOFTWARE VERSION|OPENJDK|$(style::green $(version::java))")
+$(config::get installer.maven.enabled && echo "SOFTWARE VERSION|MAVEN|$(style::green $(version::maven))")
+$(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PYTHON3|$(style::green $(version::python3))")
+$(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PIP3|$(style::green $(version::pip3))")
+$(config::get installer.container.enabled && echo "SOFTWARE VERSION|PODMAN|$(style::green $(version::podman))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NODE|$(style::green $(version::common node))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NPM|$(style::green $(version::common npm))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|YARN|$(style::green $(version::common yarn))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|LERNA|$(style::green $(version::common lerna))")
 EOF
 }
 
 # ----------------------------------------------------------------
 # Print machine info and flags
 # ----------------------------------------------------------------
-installer::setup_and_install() {
-  log::is_verbose && set -x || true
-  setup::dns
-  setup::hosts
-  installer__base_packages
+installer::main() {
+  log::is_debug_enabled && set -x || true
+  installer__init
+  installer__git
+  installer__pip3
+  installer__openjdk
   installer__epel
   installer__maven
   installer__container_runtime
-  [[ "fe" = $1 ]] && installer__fe
+  installer__fe
   installer__wrap_up
-  log::is_verbose && set +x || true
+  log::is_debug_enabled && set +x || true
 }

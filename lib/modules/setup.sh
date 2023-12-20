@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 source $MODULE_ROOT/network.sh
+env_file="/etc/profile.d/devbox.sh"
 # ----------------------------------------------------------------
 # Set up environment variables
 # PARAMETERS
@@ -22,9 +23,11 @@ source $MODULE_ROOT/network.sh
 # ----------------------------------------------------------------
 setup::context() {
   if [[ -n $2 ]]; then
-    log::info "Setting up environment for $1..."
-    echo "$2" >> /etc/profile.d/devbox.sh
-    source /etc/profile > /dev/null
+    grep "$2" $env_file > /dev/null 2>&1 || {
+      log::verbose "Setting up environment for $1..."
+      echo "$2" >> $env_file
+      source /etc/profile > /dev/null
+    }
   else
     log::fatal "Context details not provided."
   fi
@@ -36,7 +39,7 @@ setup::context() {
 setup::hosts() {
   config::get setup.hosts.enabled || return 0
   cat /etc/hosts | grep dev.$APP_DOMAIN > /dev/null || {
-    log::info "Setting up machine hosts..."
+    log::info "Setting up guest hosts..."
     network::gather_facts
     cat >> /etc/hosts << EOF
 ${network_facts[ip]} dev.$APP_DOMAIN

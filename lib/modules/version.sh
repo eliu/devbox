@@ -56,6 +56,20 @@ version::podman() {
 }
 
 # ----------------------------------------------------------------
+# Print currently installed python3 version
+# ----------------------------------------------------------------
+version::python3() {
+  test::cmd python3 && python3 -V | cut -d' ' -f2
+}
+
+# ----------------------------------------------------------------
+# Print currently installed pip3 version
+# ----------------------------------------------------------------
+version::pip3() {
+  test::cmd pip3 && pip3 -V | cut -d' ' -f2
+}
+
+# ----------------------------------------------------------------
 # Print version of the component commonly using form `command -v`
 # ----------------------------------------------------------------
 version::common() {
