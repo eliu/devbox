@@ -65,7 +65,7 @@ version::python3() {
 # ----------------------------------------------------------------
 # Print currently installed pip3 version
 # ----------------------------------------------------------------
-version::python3() {
+version::pip3() {
   test::cmd pip3 && pip3 -V | cut -d' ' -f2
 }
 

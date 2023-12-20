@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 source $MODULE_ROOT/style.sh
-LOGGING_LEVEL=$(config::get logging.level)
+LOGGING_LEVEL=$(config::get_from_file logging.level)
 
 # ----------------------------------------------------------------
 # Logging message at info level

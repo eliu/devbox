@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-CONFIG_FILE="/vagrant/etc/devbox.properties"
+config_file="/vagrant/etc/devbox.properties"
+declare -A cache
 
 # ----------------------------------------------------------------
 # Try to convert to boolean, return raw value if conversion failed
@@ -27,9 +28,34 @@ config__unbox() {
 }
 
 # ----------------------------------------------------------------
-# Read config file and get property value
+# Get property directly from file
+# This is used when config module does not load in time.
+# $1 -> property name
+# ----------------------------------------------------------------
+config::get_from_file() {
+  config__unbox $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
+}
+
+# ----------------------------------------------------------------
+# Get property from cache
+# $1 -> property name
 # ----------------------------------------------------------------
 config::get() {
-  # https://unix.stackexchange.com/questions/102008/how-do-i-trim-leading-and-trailing-whitespace-from-each-line-of-some-output
-  config__unbox $(grep "^$1" $CONFIG_FILE | cut -d'=' -f2 | awk '{$1=$1;print}')
+  config__unbox ${cache[$1]:-false}
+}
+
+# ----------------------------------------------------------------
+# Load all properties into cache
+# ----------------------------------------------------------------
+config::load_from_file() {
+  while IFS='=' read -r prop value; do
+    cache[$prop]=$value
+  done < <(cat $config_file | sed -e '/^[[:space:]]*$/d' -e '/^#/d')
+
+  if log::is_verbose_enabled; then
+    log::verbose "All cached items (${#cache[@]}) from config file are:"
+    for prop in ${!cache[@]}; do
+      log::verbose "$prop -> ${cache[$prop]}"
+    done | sort | column -t
+  fi
 }

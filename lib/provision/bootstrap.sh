@@ -17,4 +17,4 @@
 set -e
 source /vagrant/devbox.sh
 source $MODULE_ROOT/installer.sh
-installer::setup_and_install
+installer::main
