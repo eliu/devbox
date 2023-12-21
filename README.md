@@ -40,11 +40,13 @@
 
 ## 配置选项
 
-`devbox` 中所安装的所有基础软件都可通过配置文件来控制是否要安装，配置文件路径为 `etc/devbox.properties`，支持的选项及说明如下表所示。默认选项是全部禁用的，开发人员按需更改选项，如需启用，将选项值从 `false` 改为 `true` 即可。
+devbox 中所安装的所有基础软件都可通过配置文件来控制是否要安装，配置文件路径为 `etc/devbox.properties`，支持的选项及说明如下表所示。默认选项是全部禁用的，开发人员按需更改选项，如需启用，将选项值从 `false` 改为 `true` 即可。
+
+> 提示：`true` 代表安装，`false` 代表卸载。
 
 | 选项                          | 类型   | 含义                                                | 默认值  |
 | ----------------------------- | ------ | --------------------------------------------------- | ------- |
-| `logging.level`               | 字符串 | 日志打印级别，可选值有`info`, `verbose` 和 `debug`  | `info`  |
+| `logging.level`               | 字符串 | 日志级别，可选值有`info`, `verbose` ,`debug`        | `info`  |
 | `setup.hosts.enabled`         | 布尔   | 是否配置域名和 IP 映射关系                          | `false` |
 | `installer.git.enabled`       | 布尔   | 是否安装 `Git`                                      | `false` |
 | `installer.pip3.enabled`      | 布尔   | 是否安装 `Python3` 和 `pip3`                        | `false` |
@@ -54,10 +56,7 @@
 | `installer.container.enabled` | 布尔   | 是否安装 `容器运行时`，`Podman` 和 `Podman Compose` | `false` |
 | `installer.frontend.enabled`  | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna`     | `false` |
 
-以上选项既可以在一键启动命令 `vagrant up` 之前配置，也可以在其执行之后配置，需要注意以下两点：
-
-1. 软件一但安装，禁用安装选项也不会将其从虚拟机中卸载
-2. **修改完配置项之后，可以运行 `vagrant provision` 生效配置**
+以上选项既可以在一键启动命令 `vagrant up` 之前配置，也可以在其执行之后配置。在调整完之后，运行 `vagrant provision` 命令以生效配置。
 
 ## 一键启动
 
@@ -69,7 +68,7 @@ $ vagrant up
 
 > 提示：初次运行时由于开发人员本地还未下载任何 Vagrant 基础镜像文件，因此初次运行时会花费更多的时间来下载基础镜像。此处暂无国内环境下的提速方法，所以此时体验不佳。但随后的初始化过程由于使用了国内加速镜像站，速度上会有保障。
 
-安装过程中会输出日志，最后会输出所有已安装成功的软件版本清单，日志内容大致如下：
+安装过程中会输出日志，最后会输出所有已安装成功的软件版本清单。在所有配置项均启用的时候，日志内容大致如下：
 
 ```shell
 default: [INFO] Gathering facts for networks...
@@ -96,7 +95,7 @@ default: [INFO] Installing node and npm...
 default: [INFO] Setting up environment for PATH...
 default: [INFO] Accelerating npm registry...
 default: [INFO] Installing yarn and lerna...
-default: [INFO] All set! Wrap it up...
+default: [INFO] Installation complete! Wrap it up...
 default: CATEGORY          NAME          VALUE
 default: ----------------  ----          -----
 default: PROPERTY          MACHINE_OS    Rocky Linux release 9.2 (Blue Onyx)

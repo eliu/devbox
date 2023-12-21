@@ -35,8 +35,8 @@ readonly QUIET_STDOUT=$(log::is_verbose_enabled && echo "/dev/stdout" || echo "/
 installer__init() {
   setup::dns
   setup::hosts
-  setup::context "TZ" "export TZ=Asia/Shanghai"
-  setup::context "PATH" "export PATH=/usr/local/bin:\$PATH"
+  setup::add_context "TZ" "export TZ=Asia/Shanghai"
+  setup::add_context "PATH" "export PATH=/usr/local/bin:\$PATH"
   accelerator::repo
 }
 
@@ -45,11 +45,18 @@ installer__init() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__epel() {
-  config::get installer.epel.enabled || return 0
-  dnf list installed "epel*" > /dev/null 2>&1 || {
-    log::info "Setting up epel repo..."
-    dnf install $QUIET_FLAG_Q -y https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm >$QUIET_STDOUT
-    accelerator::epel
+  config::get installer.epel.enabled && {
+    dnf list installed "epel*" > /dev/null 2>&1 || {
+      log::info "Installing epel-release..."
+      dnf install $QUIET_FLAG_Q -y \
+        https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm >$QUIET_STDOUT
+      accelerator::epel
+    }
+  } || {
+    dnf list installed "epel*" > /dev/null 2>&1 && {
+      log::info "Uninstalling epel-release..."
+      dnf remove $QUIET_FLAG_Q -y epel-release >$QUIET_STDOUT
+    } || true
   }
 }
 
@@ -58,11 +65,17 @@ installer__epel() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__git() {
-  config::get installer.git.enabled || return 0
-  test::cmd git || {
-    log::info "Installing git..."
-    dnf install $QUIET_FLAG_Q -y git >$QUIET_STDOUT
-  } 
+  config::get installer.git.enabled && {
+    test::cmd git || {
+      log::info "Installing git..."
+      dnf install $QUIET_FLAG_Q -y git >$QUIET_STDOUT
+    } 
+  } || {
+    test::cmd git && {
+      log::info "Uninstalling git..."
+      dnf remove $QUIET_FLAG_Q -y git >$QUIET_STDOUT
+    } || true
+  }
 }
 
 # ----------------------------------------------------------------
@@ -70,11 +83,17 @@ installer__git() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__pip3() {
-  config::get installer.pip3.enabled || return 0
-  test::cmd python3 pip3 || {
-    log::info "Installing python3-pip..."
-    dnf install $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
-    accelerator::pip
+  config::get installer.pip3.enabled && {
+    test::cmd python3 pip3 || {
+      log::info "Installing python3-pip..."
+      dnf install $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
+      accelerator::pip
+    }
+  } || {
+    test::cmd python3 pip3 && {
+      log::info "Uninstalling python3-pip..."
+      dnf remove $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
+    } || true
   }
 }
 
@@ -83,16 +102,24 @@ installer__pip3() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__container_runtime() {
-  config::get installer.container.enabled || return 0
-  # check dependencies
-  test::cmd python3 pip3 || log::fatal "You must install python3-pip first!"
-  test::cmd podman || {
-    log::info "Installing podman..."
-    dnf install $QUIET_FLAG_Q -y podman >$QUIET_STDOUT
+  config::get installer.container.enabled && {
+    # check dependencies
+    test::cmd podman || {
+      test::cmd python3 pip3 || log::fatal "You must install python3-pip first!"
+      log::info "Installing podman..."
+      dnf install $QUIET_FLAG_Q -y podman >$QUIET_STDOUT
 
-    log::info "Installing podman compose as user vagrant..."
-    vg::exec "pip3 $QUIET_FLAG_Q install podman-compose" >$QUIET_STDOUT 2>&1
-    accelerator::container_registry
+      log::info "Installing podman compose as user vagrant..."
+      vg::exec "pip3 $QUIET_FLAG_Q install podman-compose" >$QUIET_STDOUT 2>&1
+      accelerator::container_registry
+    }
+  } || {
+    test::cmd podman && {
+      log::info "Uninstalling podman-compose..."
+      vg::exec "pip3 $QUIET_FLAG_Q uninstall podman-compose" >$QUIET_STDOUT 2>&1
+      log::info "Uninstalling podman..."
+      dnf remove $QUIET_FLAG_Q -y podman >$QUIET_STDOUT
+    } || true
   }
 }
 
@@ -101,11 +128,18 @@ installer__container_runtime() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__openjdk() {
-  config::get installer.openjdk.enabled || return 0
-  test::cmd java || {
-    log::info "Installing openjdk-8-devel..."
-    dnf install $QUIET_FLAG_Q -y java-1.8.0-openjdk-devel >$QUIET_STDOUT
-    setup::context "JAVA_HOME" "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
+  config::get installer.openjdk.enabled && {
+    test::cmd java || {
+      log::info "Installing openjdk-8-devel..."
+      dnf install $QUIET_FLAG_Q -y java-1.8.0-openjdk-devel >$QUIET_STDOUT
+      setup::add_context "JAVA_HOME" "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
+    }
+  } || {
+    test::cmd java && {
+      setup::del_context "JAVA_HOME"
+      log::info "Uninstalling openjdk-8-devel..."
+      dnf remove $QUIET_FLAG_Q -y java-1.8.0-openjdk-devel >$QUIET_STDOUT
+    } || true
   }
 }
 
@@ -114,18 +148,25 @@ installer__openjdk() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__maven() {
-  config::get installer.maven.enabled || return 0
-  # check dependencies
-  test::cmd java || log::fatal "You must install java platform first!"
-  test::cmd mvn || {
-    log::info "Installing maven..."
-    log::verbose "Downloading ${M2_URL}"
-    curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
-    log::verbose "Extracting files to /opt..."
-    tar zxf "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz" -C /opt > /dev/null
-    accelerator::maven
-    setup::context "MAVEN_HOME" "export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}"
-    setup::context "PATH" "export PATH=\$MAVEN_HOME/bin:\$PATH"
+  config::get installer.maven.enabled && {
+    # check dependencies
+    test::cmd mvn || {
+      test::cmd java || log::fatal "You must install java platform first!"
+      log::info "Installing maven..."
+      log::verbose "Downloading ${M2_URL}"
+      curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
+      log::verbose "Extracting files to /opt..."
+      tar zxf "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz" -C /opt > /dev/null
+      accelerator::maven
+      setup::add_context "MAVEN_HOME" "export MAVEN_HOME=/opt/apache-maven-${M2_VERSION}"
+      setup::add_context "PATH" "export PATH=\$MAVEN_HOME/bin:\$PATH"
+    }
+  } || {
+    test::cmd mvn && {
+      setup::del_context "MAVEN_HOME"
+      log::info "Uninstalling maven..."
+      rm -fr /opt/apache-maven*
+    } || true
   }
 }
 
@@ -134,22 +175,32 @@ installer__maven() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__fe() {
-  config::get installer.frontend.enabled || return 0
-  test::cmd npm || {
-    log::info "Installing node and npm..."
-    log::verbose "Downloading ${NODE_URL}"
-    curl -sSL ${NODE_URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
-    log::verbose "Extracting files to /opt..."
-    tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
-    setup::context "PATH" "export PATH=/opt/${NODE_FILENAME}/bin:\$PATH"
-    accelerator::npm_registry
-  }
+  config::get installer.frontend.enabled && {
+    test::cmd npm || {
+      log::info "Installing node and npm..."
+      log::verbose "Downloading ${NODE_URL}"
+      curl -sSL ${NODE_URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
+      log::verbose "Extracting files to /opt..."
+      tar xf "${TEMPDIR}/${NODE_FILENAME}.tar.xz" -C /opt
+      setup::add_context "PATH" "export PATH=/opt/${NODE_FILENAME}/bin:\$PATH"
+      accelerator::npm_registry
+    }
 
-  test::cmd yarn lerna || {
-    log::info "Installing yarn and lerna..."
-    npm install $QUIET_FLAG_S -g npm >$QUIET_STDOUT || true
-    npm install $QUIET_FLAG_S -g yarn >$QUIET_STDOUT || true
-    yarn $QUIET_FLAG_S global add lerna >$QUIET_STDOUT || true
+    test::cmd yarn lerna || {
+      log::info "Installing yarn and lerna..."
+      npm install $QUIET_FLAG_S -g npm >$QUIET_STDOUT || true
+      npm install $QUIET_FLAG_S -g yarn >$QUIET_STDOUT || true
+      yarn $QUIET_FLAG_S global add lerna >$QUIET_STDOUT || true
+    }
+  } || {
+    test::cmd yarn lerna && {
+      log::info "Uninstalling yarn and lerna..."
+      yarn $QUIET_FLAG_S global remove lerna >$QUIET_STDOUT || true
+      npm uninstall $QUIET_FLAG_S -g yarn >$QUIET_STDOUT || true
+      npm uninstall $QUIET_FLAG_S -g npm >$QUIET_STDOUT || true
+      setup::del_context "node"
+      rm -fr /opt/node-*
+    } || true
   }
 }
 
@@ -159,7 +210,7 @@ installer__fe() {
 # ----------------------------------------------------------------
 installer__wrap_up() {
   network::gather_facts
-  log::info "All set! Wrap it up..."
+  log::info "Installation complete! Wrap it up..."
   cat << EOF | column -t -s "|" -N CATEGORY,NAME,VALUE
 ----------------|----|-----
 PROPERTY|MACHINE_OS  |$(style::green $(version::os))

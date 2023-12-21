@@ -38,7 +38,7 @@ version::java() {
 # Print currently installed maven version
 # ----------------------------------------------------------------
 version::maven() {
-  test::cmd mvn && mvn -version | head -n 1 | awk '{print $3}'
+  test::cmd java && test::cmd mvn && mvn -version | head -n 1 | awk '{print $3}'
 }
 
 # ----------------------------------------------------------------
