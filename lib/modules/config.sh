@@ -19,7 +19,7 @@ declare -A cache
 # ----------------------------------------------------------------
 # Try to convert to boolean, return raw value if conversion failed
 # ----------------------------------------------------------------
-config__unbox() {
+config__parse() {
   case $1 in
   "true") return 0 ;;
   "false") return 1 ;;
@@ -33,7 +33,7 @@ config__unbox() {
 # $1 -> property name
 # ----------------------------------------------------------------
 config::get_from_file() {
-  config__unbox $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
+  config__parse $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
 }
 
 # ----------------------------------------------------------------
@@ -41,7 +41,7 @@ config::get_from_file() {
 # $1 -> property name
 # ----------------------------------------------------------------
 config::get() {
-  config__unbox ${cache[$1]:-false}
+  config__parse ${cache[$1]:-false}
 }
 
 # ----------------------------------------------------------------
