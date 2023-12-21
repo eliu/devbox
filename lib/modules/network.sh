@@ -87,10 +87,12 @@ network::gather_facts() {
     [[ -n ${network_facts[dns]}  ]] || network__gather_dns_of ${network_facts[uuid]}
     [[ -n ${network_facts[ip]}   ]] || network__gather_static_ip
 
-    log::verbose "network_facts:"
-    for key in ${!network_facts[@]}; do
-      log::verbose "$key -> ${network_facts[$key]}"
-    done | column -t
+    if log::is_verbose_enabled; then
+      log::verbose "network_facts:"
+      for key in ${!network_facts[@]}; do
+        log::verbose "$key -> ${network_facts[$key]}"
+      done | column -t
+    fi
   fi
 }
 
