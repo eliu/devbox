@@ -72,6 +72,6 @@ version::pip3() {
 # ----------------------------------------------------------------
 # Print version of the component commonly using form `command -v`
 # ----------------------------------------------------------------
-version::common() {
+version::of() {
   test::cmd $1 && $1 -v
 }

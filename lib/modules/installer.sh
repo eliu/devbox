@@ -172,10 +172,10 @@ $(config::get installer.maven.enabled && echo "SOFTWARE VERSION|MAVEN|$(style::g
 $(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PYTHON3|$(style::green $(version::python3))")
 $(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PIP3|$(style::green $(version::pip3))")
 $(config::get installer.container.enabled && echo "SOFTWARE VERSION|PODMAN|$(style::green $(version::podman))")
-$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NODE|$(style::green $(version::common node))")
-$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NPM|$(style::green $(version::common npm))")
-$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|YARN|$(style::green $(version::common yarn))")
-$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|LERNA|$(style::green $(version::common lerna))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NODE|$(style::green $(version::of node))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NPM|$(style::green $(version::of npm))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|YARN|$(style::green $(version::of yarn))")
+$(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|LERNA|$(style::green $(version::of lerna))")
 EOF
 }
 
