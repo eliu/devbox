@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 source $MODULE_ROOT/vagrant.sh
-
+quiet_flag=$(log::is_verbose_enabled || printf -- "--quiet-pull")
+quite_stdout=$(log::is_verbose_enabled && echo "/dev/stdout" || echo "/dev/null")
 # ----------------------------------------------------------------
 # Initialize workspace for container services
 # ----------------------------------------------------------------
@@ -36,9 +37,9 @@ basesvc::init() {
 # Start base services
 # ----------------------------------------------------------------
 basesvc::up() {
-  local is_quiet=$(log::is_verbose_enabled || printf -- "--quiet-pull")
   cd "$APP_HOME/basesvc"
-  test::cmd podman-compose && podman-compose up $is_quiet -d mysql redis minio
+  test::cmd podman-compose \
+    && podman-compose up $quiet_flag -d mysql redis minio >$quite_stdout
 }
 
 # ----------------------------------------------------------------

@@ -24,8 +24,9 @@ readonly M2_URL="$ACC_MIRROR_M2/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-
 readonly NODE_VERSION="20.9.0"
 readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 readonly NODE_URL="$ACC_MIRROR_NODE/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
-readonly IS_QUIET_Q=$(log::is_verbose_enabled || printf -- "-q")
-readonly IS_QUIET_S=$(log::is_verbose_enabled || printf -- "-s")
+readonly QUIET_FLAG_Q=$(log::is_verbose_enabled || printf -- "-q")
+readonly QUIET_FLAG_S=$(log::is_verbose_enabled || printf -- "-s")
+readonly QUIET_STDOUT=$(log::is_verbose_enabled && echo "/dev/stdout" || echo "/dev/null")
 
 # ----------------------------------------------------------------
 # Accelerate repo and context setups
@@ -47,7 +48,7 @@ installer__epel() {
   config::get installer.epel.enabled || return 0
   dnf list installed "epel*" > /dev/null 2>&1 || {
     log::info "Setting up epel repo..."
-    dnf install $IS_QUIET_Q -y https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm
+    dnf install $QUIET_FLAG_Q -y https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm >$QUIET_STDOUT
     accelerator::epel
   }
 }
@@ -60,7 +61,7 @@ installer__git() {
   config::get installer.git.enabled || return 0
   test::cmd git || {
     log::info "Installing git..."
-    dnf install $IS_QUIET_Q -y git
+    dnf install $QUIET_FLAG_Q -y git >$QUIET_STDOUT
   } 
 }
 
@@ -72,7 +73,7 @@ installer__pip3() {
   config::get installer.pip3.enabled || return 0
   test::cmd python3 pip3 || {
     log::info "Installing python3-pip..."
-    dnf install $IS_QUIET_Q -y python3-pip
+    dnf install $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
     accelerator::pip
   }
 }
@@ -87,10 +88,10 @@ installer__container_runtime() {
   test::cmd python3 pip3 || log::fatal "You must install python3-pip first!"
   test::cmd podman || {
     log::info "Installing podman..."
-    dnf install $IS_QUIET_Q -y podman
+    dnf install $QUIET_FLAG_Q -y podman >$QUIET_STDOUT
 
     log::info "Installing podman compose as user vagrant..."
-    vg::exec "pip3 $IS_QUIET_Q install podman-compose"
+    vg::exec "pip3 $QUIET_FLAG_Q install podman-compose" >$QUIET_STDOUT 2>&1
     accelerator::container_registry
   }
 }
@@ -103,7 +104,7 @@ installer__openjdk() {
   config::get installer.openjdk.enabled || return 0
   test::cmd java || {
     log::info "Installing openjdk-8-devel..."
-    dnf install $IS_QUIET_Q -y java-1.8.0-openjdk-devel
+    dnf install $QUIET_FLAG_Q -y java-1.8.0-openjdk-devel >$QUIET_STDOUT
     setup::context "JAVA_HOME" "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
   }
 }
@@ -146,9 +147,9 @@ installer__fe() {
 
   test::cmd yarn lerna || {
     log::info "Installing yarn and lerna..."
-    npm install $IS_QUIET_S -g npm || true
-    npm install $IS_QUIET_S -g yarn || true
-    yarn $IS_QUIET_S global add lerna || true
+    npm install $QUIET_FLAG_S -g npm >$QUIET_STDOUT || true
+    npm install $QUIET_FLAG_S -g yarn >$QUIET_STDOUT || true
+    yarn $QUIET_FLAG_S global add lerna >$QUIET_STDOUT || true
   }
 }
 
