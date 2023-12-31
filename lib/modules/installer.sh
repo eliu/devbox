@@ -37,6 +37,7 @@ installer__init() {
   setup::hosts
   setup::add_context "TZ" "export TZ=Asia/Shanghai"
   setup::add_context "PATH" "export PATH=/usr/local/bin:\$PATH"
+  accelerator::repo
 }
 
 # ----------------------------------------------------------------
@@ -47,7 +48,9 @@ installer__epel() {
   config::get installer.epel.enabled && {
     dnf list installed "epel*" > /dev/null 2>&1 || {
       log::info "Installing epel-release..."
-      dnf install $QUIET_FLAG_Q -y epel-release >$QUIET_STDOUT 2>&1
+      dnf install $QUIET_FLAG_Q -y \
+        https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm >$QUIET_STDOUT
+      accelerator::epel
     }
   } || {
     dnf list installed "epel*" > /dev/null 2>&1 && {
@@ -234,10 +237,10 @@ EOF
 installer::main() {
   log::is_debug_enabled && set -x || true
   installer__init
+  installer__epel
   installer__git
   installer__pip3
   installer__openjdk
-  installer__epel
   installer__maven
   installer__container_runtime
   installer__fe
