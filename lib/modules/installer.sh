@@ -37,7 +37,6 @@ installer__init() {
   setup::hosts
   setup::add_context "TZ" "export TZ=Asia/Shanghai"
   setup::add_context "PATH" "export PATH=/usr/local/bin:\$PATH"
-  accelerator::repo
 }
 
 # ----------------------------------------------------------------
@@ -48,14 +47,12 @@ installer__epel() {
   config::get installer.epel.enabled && {
     dnf list installed "epel*" > /dev/null 2>&1 || {
       log::info "Installing epel-release..."
-      dnf install $QUIET_FLAG_Q -y \
-        https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm >$QUIET_STDOUT
-      accelerator::epel
+      dnf install $QUIET_FLAG_Q -y epel-release >$QUIET_STDOUT 2>&1
     }
   } || {
     dnf list installed "epel*" > /dev/null 2>&1 && {
       log::info "Uninstalling epel-release..."
-      dnf remove $QUIET_FLAG_Q -y epel-release >$QUIET_STDOUT
+      dnf remove $QUIET_FLAG_Q -y epel-release >$QUIET_STDOUT 2>&1
     } || true
   }
 }
