@@ -16,15 +16,16 @@
 source $MODULE_ROOT/vagrant.sh
 export ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
 export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
-IS_QUIET=$(log::is_verbose_enabled || printf -- "-q")
+
+ACC_NEED_CACHE=false
 
 # ----------------------------------------------------------------
 # Make cache for repo (right after accelerating repo...)
 # Scope: private
 # ----------------------------------------------------------------
-accelerator__make_cache() {
+accelerator::make_cache() {
   log::info "Making cache. This may take a few seconds..."
-  dnf $IS_QUIET makecache
+  $ACC_NEED_CACHE && dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1 || true
 }
 
 # ----------------------------------------------------------------
@@ -38,7 +39,7 @@ accelerator::repo() {
       -e 's|^mirrorlist=|#mirrorlist=|g' \
       -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
       /etc/yum.repos.d/rocky*.repo
-    accelerator__make_cache
+    ACC_NEED_CACHE=true
   }
 }
 
@@ -54,7 +55,7 @@ accelerator::epel() {
       -e 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.aliyun.com|' \
       -e 's|^metalink|#metalink|' \
       /etc/yum.repos.d/epel*
-    accelerator__make_cache
+    ACC_NEED_CACHE=true
   }
 }
 
