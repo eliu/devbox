@@ -24,9 +24,6 @@ readonly M2_URL="$ACC_MIRROR_M2/maven-${M2_MAJOR}/${M2_VERSION}/binaries/apache-
 readonly NODE_VERSION="20.9.0"
 readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 readonly NODE_URL="$ACC_MIRROR_NODE/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
-readonly QUIET_FLAG_Q=$(log::is_verbose_enabled || printf -- "-q")
-readonly QUIET_FLAG_S=$(log::is_verbose_enabled || printf -- "-s")
-readonly QUIET_STDOUT=$(log::is_verbose_enabled && echo "/dev/stdout" || echo "/dev/null")
 
 # ----------------------------------------------------------------
 # Accelerate repo and context setups
@@ -238,6 +235,7 @@ installer::main() {
   log::is_debug_enabled && set -x || true
   installer__init
   installer__epel
+  accelerator::make_cache
   installer__git
   installer__pip3
   installer__openjdk
