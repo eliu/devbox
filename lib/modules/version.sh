@@ -49,13 +49,6 @@ version::git() {
 }
 
 # ----------------------------------------------------------------
-# Print currently installed podman version
-# ----------------------------------------------------------------
-version::podman() {
-  test::cmd podman && podman version | grep Version | head -n 1 | awk '{print $2}'
-}
-
-# ----------------------------------------------------------------
 # Print currently installed python3 version
 # ----------------------------------------------------------------
 version::python3() {

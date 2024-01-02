@@ -14,13 +14,14 @@
 # limitations under the License.
 #
 source $MODULE_ROOT/vagrant.sh
+source $MODULE_ROOT/cri.sh
 quiet_flag=$(log::is_verbose_enabled || printf -- "--quiet-pull")
-quite_stdout=$(log::is_verbose_enabled && echo "/dev/stdout" || echo "/dev/null")
 # ----------------------------------------------------------------
 # Initialize workspace for container services
 # ----------------------------------------------------------------
 basesvc::init() {
-  test::cmd podman podman-compose || {
+  log::verbose "Detected cri command is $CRI_COMMAND..."
+  test::cmd $CRI_COMMAND || {
     log::fatal "Container runtime podman or compose not installed."
   }
 
@@ -38,8 +39,7 @@ basesvc::init() {
 # ----------------------------------------------------------------
 basesvc::up() {
   cd "$APP_HOME/basesvc"
-  test::cmd podman-compose \
-    && podman-compose up $quiet_flag -d mysql redis minio >$quite_stdout
+  cri::compose up $quiet_flag -d mysql redis minio >$QUIET_STDOUT 2>&1
 }
 
 # ----------------------------------------------------------------
@@ -47,5 +47,5 @@ basesvc::up() {
 # ----------------------------------------------------------------
 basesvc::ps() {
   cd "$APP_HOME/basesvc"
-  test::cmd podman-compose && podman-compose ps
+  cri::compose ps
 }

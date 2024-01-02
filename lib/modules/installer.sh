@@ -16,6 +16,7 @@
 source $MODULE_ROOT/version.sh
 source $MODULE_ROOT/setup.sh
 source $MODULE_ROOT/accelerator.sh
+source $MODULE_ROOT/cri.sh
 
 readonly TEMPDIR="$(mktemp -d)"
 readonly M2_MAJOR="3"
@@ -99,25 +100,7 @@ installer__pip3() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__container_runtime() {
-  config::get installer.container.enabled && {
-    # check dependencies
-    test::cmd podman || {
-      test::cmd python3 pip3 || log::fatal "You must install python3-pip first!"
-      log::info "Installing podman..."
-      dnf install $QUIET_FLAG_Q -y podman >$QUIET_STDOUT
-
-      log::info "Installing podman compose as user vagrant..."
-      vg::exec "pip3 $QUIET_FLAG_Q install podman-compose" >$QUIET_STDOUT 2>&1
-      accelerator::container_registry
-    }
-  } || {
-    test::cmd podman && {
-      log::info "Uninstalling podman-compose..."
-      vg::exec "pip3 $QUIET_FLAG_Q uninstall podman-compose" >$QUIET_STDOUT 2>&1
-      log::info "Uninstalling podman..."
-      dnf remove $QUIET_FLAG_Q -y podman >$QUIET_STDOUT
-    } || true
-  }
+  config::get installer.container.enabled && cri::install || cri::uninstall
 }
 
 # ----------------------------------------------------------------
@@ -220,7 +203,7 @@ $(config::get installer.openjdk.enabled && echo "SOFTWARE VERSION|OPENJDK|$(styl
 $(config::get installer.maven.enabled && echo "SOFTWARE VERSION|MAVEN|$(style::green $(version::maven))")
 $(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PYTHON3|$(style::green $(version::python3))")
 $(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PIP3|$(style::green $(version::pip3))")
-$(config::get installer.container.enabled && echo "SOFTWARE VERSION|PODMAN|$(style::green $(version::podman))")
+$(config::get installer.container.enabled && echo "SOFTWARE VERSION|CONTAINER|$(style::green $(cri::version))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NODE|$(style::green $(version::of node))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NPM|$(style::green $(version::of npm))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|YARN|$(style::green $(version::of yarn))")
