@@ -72,15 +72,6 @@ accelerator::maven() {
 }
 
 # ----------------------------------------------------------------
-# Use container registry for China
-# ----------------------------------------------------------------
-accelerator::container_registry() {
-  log::info "Accelerating container registry..."
-  mv /etc/containers/registries.conf /etc/containers/registries.conf.bak
-  \cp -f /vagrant/etc/registries.conf /etc/containers/registries.conf
-}
-
-# ----------------------------------------------------------------
 # Use TAOBAO npm registry
 # ----------------------------------------------------------------
 accelerator::npm_registry() {

@@ -52,3 +52,10 @@ vg::enable_linger() {
 vg::env() {
   vg::exec "echo \"$@\" >> \$HOME/.bashrc"
 }
+
+# ----------------------------------------------------------------
+# Add vagrant to user group $1
+# ----------------------------------------------------------------
+vg::add_user_group() {
+  vg::sudo_exec "usermod -aG $1 vagrant"
+}
