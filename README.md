@@ -44,17 +44,18 @@ devbox 中所安装的所有基础软件都可通过配置文件来控制是否�
 
 > 提示：`true` 代表安装，`false` 代表卸载。
 
-| 选项                          | 类型   | 含义                                                | 默认值  |
-| ----------------------------- | ------ | --------------------------------------------------- | ------- |
-| `logging.level`               | 字符串 | 日志级别，可选值有`info`, `verbose` ,`debug`        | `info`  |
-| `setup.hosts.enabled`         | 布尔   | 是否配置域名和 IP 映射关系                          | `false` |
-| `installer.git.enabled`       | 布尔   | 是否安装 `Git`                                      | `false` |
-| `installer.pip3.enabled`      | 布尔   | 是否安装 `Python3` 和 `pip3`                        | `false` |
-| `installer.openjdk.enabled`   | 布尔   | 是否安装 `Java`                                     | `false` |
-| `installer.epel.enabled`      | 布尔   | 是否安装 `EPEL`                                     | `false` |
-| `installer.maven.enabled`     | 布尔   | 是否安装 `Maven`                                    | `false` |
-| `installer.container.enabled` | 布尔   | 是否安装 `容器运行时`，`Podman` 和 `Podman Compose` | `false` |
-| `installer.frontend.enabled`  | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna`     | `false` |
+| 选项                           | 类型   | 含义                                            | 默认值  |
+| ------------------------------ | ------ | ----------------------------------------------- | ------- |
+| `logging.level`                | 字符串 | 日志级别，可选值有`info`, `verbose` ,`debug`    | `info`  |
+| `setup.hosts.enabled`          | 布尔   | 是否配置域名和 IP 映射关系                      | `false` |
+| `installer.git.enabled`        | 布尔   | 是否安装 `Git`                                  | `false` |
+| `installer.pip3.enabled`       | 布尔   | 是否安装 `Python3` 和 `pip3`                    | `false` |
+| `installer.openjdk.enabled`    | 布尔   | 是否安装 `Java`                                 | `false` |
+| `installer.epel.enabled`       | 布尔   | 是否安装 `EPEL`                                 | `false` |
+| `installer.maven.enabled`      | 布尔   | 是否安装 `Maven`                                | `false` |
+| `installer.frontend.enabled`   | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna` | `false` |
+| `installer.container.enabled`  | 布尔   | 是否安装容器运行时                              | alse`   |
+| `installer.containert.runtime` | 字符串 | 容器运行时：podman 或者 docker                  | docker  |
 
 以上选项既可以在一键启动命令 `vagrant up` 之前配置，也可以在其执行之后配置。在调整完之后，运行 `vagrant provision` 命令以生效配置。
 
@@ -152,4 +153,8 @@ minio   /usr/bin/docker-entrypoint ...   Up (healthy)   0.0.0.0:9000->9000/tcp
 mysql   docker-entrypoint.sh mysqld      Up             0.0.0.0:3306->3306/tcp, 33060/tcp
 redis   docker-entrypoint.sh redis ...   Up             0.0.0.0:6379->6379/tcp
 ```
+
+## License
+
+[Apache-2.0](LICENSE)
 

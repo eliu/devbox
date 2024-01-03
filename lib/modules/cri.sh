@@ -1,6 +1,3 @@
-# ----------------------------------------------------------------
-# Use container registry for China
-# ----------------------------------------------------------------
 podman::accelerate() {
   log::info "Accelerating container registry..."
   mv /etc/containers/registries.conf /etc/containers/registries.conf.bak
