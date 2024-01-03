@@ -24,7 +24,7 @@ declare -A cache
 # ----------------------------------------------------------------
 config__parse() {
   [[ $1 =~ enabled$ ]] && {
-    case $1 in
+    case $2 in
       "true") return 0 ;;
       "false") return 1 ;;
       *) return 22;;

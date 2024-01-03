@@ -15,15 +15,12 @@
 #
 source $MODULE_ROOT/vagrant.sh
 source $MODULE_ROOT/cri.sh
-quiet_flag=$(log::is_verbose_enabled || printf -- "--quiet-pull")
+quiet_pull=$(log::is_verbose_enabled || printf -- "--quiet-pull")
 # ----------------------------------------------------------------
 # Initialize workspace for container services
 # ----------------------------------------------------------------
 basesvc::init() {
-  log::verbose "Detected cri command is $CRI_COMMAND..."
-  test::cmd $CRI_COMMAND || {
-    log::fatal "Container runtime podman or compose not installed."
-  }
+  test::cmd $CRI_COMMAND || log::fatal "Container runtime '$CRI_COMMAND' not installed or invalid."
 
   [[ -d $APP_HOME/basesvc ]] || {
     log::info "Deploying base services..."
@@ -39,7 +36,7 @@ basesvc::init() {
 # ----------------------------------------------------------------
 basesvc::up() {
   cd "$APP_HOME/basesvc"
-  cri::compose up $quiet_flag -d mysql redis minio >$QUIET_STDOUT 2>&1
+  cri::compose up $quiet_pull -d mysql redis minio >$QUIET_STDOUT 2>&1
 }
 
 # ----------------------------------------------------------------
