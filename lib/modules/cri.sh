@@ -4,7 +4,7 @@
 podman::accelerate() {
   log::info "Accelerating container registry..."
   mv /etc/containers/registries.conf /etc/containers/registries.conf.bak
-  \cp -f /vagrant/etc/registries.conf /etc/containers/registries.conf
+  \cp -f /vagrant/etc/containers/registries.conf /etc/containers/registries.conf
 }
 
 podman::install() {
@@ -32,7 +32,7 @@ docker::accelerate() {
   if [[ -f /etc/docker/daemon.json ]]; then
     mv /etc/docker/daemon.json /etc/docker/daemon.json.bak
   fi
-  \cp -f /vagrant/etc/docker-daemon.json /etc/docker/daemon.json
+  \cp -f /vagrant/etc/docker/daemon.json /etc/docker/daemon.json
 }
 
 docker::install() {
