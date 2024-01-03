@@ -17,14 +17,19 @@ config_file="/vagrant/etc/devbox.properties"
 declare -A cache
 
 # ----------------------------------------------------------------
-# Try to convert to boolean, return raw value if conversion failed
+# Parse value from config
+# Parameters
+# $1 -> key
+# $1 -> raw value to be parsed
 # ----------------------------------------------------------------
 config__parse() {
-  case $1 in
-  "true") return 0 ;;
-  "false") return 1 ;;
-  *) echo $1;;
-  esac
+  [[ $1 =~ enabled$ ]] && {
+    case $2 in
+      "true") return 0 ;;
+      "false") return 1 ;;
+      *) return 22;;
+    esac
+  } || echo $2
 }
 
 # ----------------------------------------------------------------
@@ -33,7 +38,7 @@ config__parse() {
 # $1 -> property name
 # ----------------------------------------------------------------
 config::get_from_file() {
-  config__parse $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
+  config__parse $1 $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
 }
 
 # ----------------------------------------------------------------
@@ -41,7 +46,7 @@ config::get_from_file() {
 # $1 -> property name
 # ----------------------------------------------------------------
 config::get() {
-  config__parse ${cache[$1]:-false}
+  config__parse $1 ${cache[$1]}
 }
 
 # ----------------------------------------------------------------

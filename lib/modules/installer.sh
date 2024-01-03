@@ -100,7 +100,7 @@ installer__pip3() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__container_runtime() {
-  config::get installer.container.enabled && cri::install || cri::uninstall
+  config::get installer.container.enabled && cri::install || cri::remove
 }
 
 # ----------------------------------------------------------------
