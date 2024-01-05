@@ -16,20 +16,19 @@ Vagrant.configure("2") do |config|
   end
 
   # Bootstrap step right after `vagrant up`
-  config.vm.provision "shell" do |s|
-    s.path       = "lib/provision/bootstrap.sh"
-    s.keep_color = true
-  end
+  config.vm.provision "shell", keep_color: true, path: "bin/boot.sh"
 
   # Provision base services using podman compose
-  config.vm.provision "base services", type: "shell", run: "never" do |s|
-    s.privileged = false
-    s.path       = "lib/provision/svcup.sh"
-    s.keep_color = true
-  end
+  config.vm.provision "base services", type: "shell", 
+    run: "never",
+    privileged: false,
+    keep_color: true,
+    path: "bin/svcup.sh"
 
   # Check if all base services are under normal status
-  config.vm.provision "health check", type: "shell", run: "never", privileged: false,
+  config.vm.provision "health check", type: "shell", 
+    run: "never",
+    privileged: false,
     keep_color: true,
-    path: "lib/provision/svcps.sh"
+    path: "bin/svcps.sh"
 end
