@@ -89,7 +89,7 @@ network::resolve_dns() {
   
   [[ -n ${network_facts[dns]} && -n ${network_facts[uuid]} ]] || {
     log::info "Resolving dns..."
-    for nameserver in $(cat /vagrant/etc/nameserver.conf); do
+    for nameserver in $(cat /vagrant/etc/networks/nameserver.conf); do
       log::verbose "Adding nameserver $nameserver..."
       nmcli con mod ${network_facts[uuid]} +ipv4.dns $nameserver
     done

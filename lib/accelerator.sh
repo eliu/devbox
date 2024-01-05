@@ -1,7 +1,6 @@
 source $MODULE_ROOT/vagrant.sh
-export ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
-export ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
-
+ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
+ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
 ACC_NEED_CACHE=false
 
 # ----------------------------------------------------------------
@@ -51,7 +50,7 @@ accelerator::maven() {
   grep aliyun $VAGRANT_HOME/.m2/settings.xml > /dev/null 2>&1 || {
     log::info "Accelerating maven repo..."
     mkdir -p $VAGRANT_HOME/.m2
-    cp /vagrant/etc/maven-settings.xml $VAGRANT_HOME/.m2/settings.xml
+    cp /vagrant/etc/maven/settings.xml $VAGRANT_HOME/.m2/settings.xml
     vg::chown $VAGRANT_HOME/.m2
   }
 }
