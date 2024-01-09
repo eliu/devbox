@@ -188,7 +188,7 @@ $(config::get installer.openjdk.enabled && echo "SOFTWARE VERSION|OPENJDK|$(styl
 $(config::get installer.maven.enabled && echo "SOFTWARE VERSION|MAVEN|$(style::green $(version::maven))")
 $(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PYTHON3|$(style::green $(version::python3))")
 $(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PIP3|$(style::green $(version::pip3))")
-$(config::get installer.container.enabled && echo "SOFTWARE VERSION|CONTAINER|$(style::green $(cri::version))")
+$(config::get installer.container.enabled && echo "SOFTWARE VERSION|$CRI_COMMAND|$(style::green $(cri::version))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NODE|$(style::green $(version::of node))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NPM|$(style::green $(version::of npm))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|YARN|$(style::green $(version::of yarn))")

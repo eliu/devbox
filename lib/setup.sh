@@ -33,21 +33,22 @@ setup::del_context() {
 # Setup hosts
 # ----------------------------------------------------------------
 setup::hosts() {
-  config::get setup.hosts.enabled && {
-    cat /etc/hosts | grep $APP_DOMAIN > /dev/null || {
+  local host_name=$(config::get setup.host.name)
+  config::get setup.host.enabled && {
+    cat /etc/hosts | grep $host_name > /dev/null || {
       log::info "Setting up guest hosts..."
       network::gather_facts
       cat >> /etc/hosts << EOF
-${network_facts[ip]} dev.$APP_DOMAIN
-${network_facts[ip]} db.$APP_DOMAIN
-${network_facts[ip]} redis.$APP_DOMAIN
-${network_facts[ip]} file.$APP_DOMAIN
+${network_facts[ip]} dev.$host_name
+${network_facts[ip]} db.$host_name
+${network_facts[ip]} redis.$host_name
+${network_facts[ip]} file.$host_name
 EOF
     }
   } || {
-    cat /etc/hosts | grep $APP_DOMAIN > /dev/null && {
+    cat /etc/hosts | grep $host_name > /dev/null && {
       log::info "Undoing guest hosts..."
-      sed -i "/$APP_DOMAIN/d" /etc/hosts
+      sed -i "/$host_name/d" /etc/hosts
     } || true
   }
 }
