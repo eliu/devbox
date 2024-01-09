@@ -23,12 +23,14 @@ Vagrant.configure("2") do |config|
     run: "never",
     privileged: false,
     keep_color: true,
-    path: "bin/svcup.sh"
+    path: "bin/basesvc.sh",
+    args: "up"
 
   # Check if all base services are under normal status
   config.vm.provision "health check", type: "shell", 
     run: "never",
     privileged: false,
     keep_color: true,
-    path: "bin/svcps.sh"
+    path: "bin/basesvc.sh",
+    args: "ps"
 end

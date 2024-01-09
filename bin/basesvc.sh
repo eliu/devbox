@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -e
+source /vagrant/include/devbox.sh
 source $MODULE_ROOT/vagrant.sh
 source $MODULE_ROOT/cri.sh
 SVC_HOME=$VAGRANT_HOME/.local/basesvc
@@ -39,4 +42,20 @@ basesvc::up() {
 basesvc::ps() {
   cd "$SVC_HOME"
   cri::compose ps
+}
+
+# Main entrypoint 
+{
+  case $1 in
+  up)
+    basesvc::init
+    basesvc::up
+    ;;
+  ps)
+    basesvc::ps
+    ;;
+  *)
+    log::fatal "Bad argument $1"
+    ;;
+  esac
 }
