@@ -62,21 +62,15 @@ installer__git() {
 }
 
 # ----------------------------------------------------------------
-# Install python3 and pip3
+# Install pip3
+# We make pip3 installed by default since python3 is available.
 # Scope: private
 # ----------------------------------------------------------------
 installer__pip3() {
-  config::get installer.pip3.enabled && {
-    test::cmd python3 pip3 || {
-      log::info "Installing python3-pip..."
-      dnf install $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
-      accelerator::pip
-    }
-  } || {
-    test::cmd python3 pip3 && {
-      log::info "Uninstalling python3-pip..."
-      dnf remove $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
-    } || true
+  test::cmd pip3 || {
+    log::info "Installing python3-pip..."
+    dnf install $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
+    accelerator::pip
   }
 }
 
@@ -186,8 +180,7 @@ $(config::get installer.git.enabled && echo "SOFTWARE VERSION|GIT|$(style::green
 $(config::get installer.epel.enabled && echo "SOFTWARE VERSION|EPEL|$(style::green $(version::epel))")
 $(config::get installer.openjdk.enabled && echo "SOFTWARE VERSION|OPENJDK|$(style::green $(version::java))")
 $(config::get installer.maven.enabled && echo "SOFTWARE VERSION|MAVEN|$(style::green $(version::maven))")
-$(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PYTHON3|$(style::green $(version::python3))")
-$(config::get installer.pip3.enabled && echo "SOFTWARE VERSION|PIP3|$(style::green $(version::pip3))")
+SOFTWARE VERSION|PIP3|$(style::green $(version::pip3))
 $(config::get installer.container.enabled && echo "SOFTWARE VERSION|$CRI_COMMAND|$(style::green $(cri::version))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NODE|$(style::green $(version::of node))")
 $(config::get installer.frontend.enabled && echo "SOFTWARE VERSION|NPM|$(style::green $(version::of npm))")
