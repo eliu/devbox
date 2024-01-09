@@ -1,33 +1,42 @@
 source $MODULE_ROOT/vagrant.sh
 source $MODULE_ROOT/cri.sh
-quiet_pull=$(log::is_verbose_enabled || printf -- "--quiet-pull")
-# ----------------------------------------------------------------
-# Initialize workspace for container services
-# ----------------------------------------------------------------
+SVC_HOME=$VAGRANT_HOME/.local/basesvc
+#===  FUNCTION  ================================================================
+#         NAME: basesvc::init
+#  DESCRIPTION: Initialize workspace for container services
+#       RUN AS: vagrant
+# PARAMETER  1: ---
+#===============================================================================
 basesvc::init() {
   test::cmd $CRI_COMMAND || log::fatal "Container runtime '$CRI_COMMAND' not installed or invalid."
 
-  [[ -d $APP_HOME/basesvc ]] || {
+  [[ -d $SVC_HOME ]] || {
     log::info "Deploying base services..."
-    sudo mkdir -p "$APP_HOME"
-    sudo \cp -r /vagrant/etc/basesvc "$APP_HOME/"
-    vg::chown "$APP_HOME"
+    mkdir -p "$SVC_HOME"
+    \cp -r /vagrant/etc/basesvc/* "$SVC_HOME"
     vg::enable_linger
   }
 }
 
-# ----------------------------------------------------------------
-# Start base services
-# ----------------------------------------------------------------
+#===  FUNCTION  ================================================================
+#         NAME: basesvc::init
+#  DESCRIPTION: Start base services: mysql, redis, minio
+#       RUN AS: vagrant
+# PARAMETER  1: ---
+#===============================================================================
 basesvc::up() {
-  cd "$APP_HOME/basesvc"
-  cri::compose up $quiet_pull -d mysql redis minio >$QUIET_STDOUT 2>&1
+  cd "$SVC_HOME"
+  log::info "Starting base services..."
+  cri::compose up $QUIET_PULL -d >$QUIET_STDOUT 2>&1
 }
 
-# ----------------------------------------------------------------
-# Print running status of base services
-# ----------------------------------------------------------------
+#===  FUNCTION  ================================================================
+#         NAME: basesvc::init
+#  DESCRIPTION: Print running status of base services
+#       RUN AS: vagrant
+# PARAMETER  1: ---
+#===============================================================================
 basesvc::ps() {
-  cd "$APP_HOME/basesvc"
+  cd "$SVC_HOME"
   cri::compose ps
 }
