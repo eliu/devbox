@@ -1,4 +1,4 @@
-require logging test vagrant
+require logging test vagrant accelerator
 #===  FUNCTION  ================================================================
 #         NAME: podman::accelerate
 #  DESCRIPTION: Accelerate registries of podman
@@ -70,18 +70,25 @@ docker::accelerate() {
 docker::install() {
   test::cmd docker || {
     log::info "Installing docker-ce..."
+    
     log::verbose "Configuring repo..."
     dnf config-manager \
       --add-repo=https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo \
       >$QUIET_STDOUT 2>&1
+    accelerator::make_cache
+
     log::verbose "Performing installation..."
     dnf install $QUIET_FLAG_Q -y docker-ce >$QUIET_STDOUT 2>&1
+
     log::verbose "Accelerating registry..."
     docker::accelerate
+
     log::verbose "Starting service..."
     systemctl start docker >$QUIET_STDOUT 2>&1
-    log::verbose "Making docker service auto start..."
+
+    log::verbose "Enabling docker service..."
     systemctl enable docker >$QUIET_STDOUT 2>&1
+    
     log::verbose "Add vagrant user to docker group..."
     vg::add_user_group docker
   }
