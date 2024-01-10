@@ -1,3 +1,4 @@
+require logging test vagrant
 #===  FUNCTION  ================================================================
 #         NAME: podman::accelerate
 #  DESCRIPTION: Accelerate registries of podman

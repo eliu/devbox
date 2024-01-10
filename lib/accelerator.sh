@@ -1,4 +1,5 @@
-source $MODULE_ROOT/vagrant.sh
+require vagrant logging
+
 ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
 ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
 ACC_NEED_CACHE=false
@@ -8,8 +9,12 @@ ACC_NEED_CACHE=false
 # Scope: private
 # ----------------------------------------------------------------
 accelerator::make_cache() {
-  log::info "Making cache. This may take a few seconds..."
-  $ACC_NEED_CACHE && dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1 || true
+  if $ACC_NEED_CACHE; then
+    log::info "Making cache. This may take a few seconds..."
+    local cmd="$ACC_NEED_CACHE && dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1"
+    $cmd
+    vg::exec "$cmd"
+  fi
 }
 
 # ----------------------------------------------------------------

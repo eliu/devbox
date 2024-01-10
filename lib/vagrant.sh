@@ -10,8 +10,7 @@ vg::exec() {
 # Execute command as root. User vagrant can become root via sudo
 # ----------------------------------------------------------------
 vg::sudo_exec() {
-  local context="$MODULE_ROOT/vagrant.sh"
-  [[ "root" = $(whoami) ]] && $@ || sudo bash -c ". $context && $@"
+  [[ "root" = $(whoami) ]] && $@ || sudo bash -c "$@"
 }
 
 # ----------------------------------------------------------------

@@ -1,7 +1,4 @@
-source $MODULE_ROOT/version.sh
-source $MODULE_ROOT/setup.sh
-source $MODULE_ROOT/accelerator.sh
-source $MODULE_ROOT/cri.sh
+require logging test config version setup accelerator cri
 
 readonly TEMPDIR="$(mktemp -d)"
 readonly M2_MAJOR="3"
@@ -169,7 +166,7 @@ installer__fe() {
 # ----------------------------------------------------------------
 installer__wrap_up() {
   network::gather_facts
-  log::info "Installation complete! Wrap it up..."
+  log::verbose "Installation complete! Wrap it up..."
   cat << EOF | column -t -s "|" -N CATEGORY,NAME,VALUE
 ----------------|----|-----
 PROPERTY|MACHINE_OS  |$(style::green $(version::os))
