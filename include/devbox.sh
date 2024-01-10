@@ -1,3 +1,4 @@
+declare -gA module_loaded
 #===  FUNCTION  ================================================================
 #         NAME: require
 #  DESCRIPTION: Import required modules into context
@@ -7,7 +8,11 @@ function require() {
   local module_path
   for module in $@; do
     module_path="/vagrant/lib/$module.sh"
-    [ ! -f "$module_path" ] || source $module_path
+    if [ -f "$module_path" ] && ! [[ -v module_loaded[$module] ]]; then
+      # echo "Loading module $module_path"
+      module_loaded[$module]=true
+      source $module_path
+    fi
   done
 }
 

@@ -1,6 +1,4 @@
-require style
-LOGGING_LEVEL=$(config::get_from_file logging.level)
-
+require style config
 # ----------------------------------------------------------------
 # Logging message at info level
 # ----------------------------------------------------------------
@@ -22,15 +20,23 @@ log::fatal() { echo $(style::red "[FATA] $@"); exit 1
 log::verbose() { 
   log::is_verbose_enabled && echo $(style::cyan "VERBOSE: $@") || true
 }
+
+# ----------------------------------------------------------------
+# Lazy loading logging.level option
+# ----------------------------------------------------------------
+log::level() {
+  config::get logging.level
+}
+
 # ----------------------------------------------------------------
 # Check if we're in verbose mode or lower level logging
 # ----------------------------------------------------------------
 log::is_verbose_enabled() {
-  [[ $LOGGING_LEVEL =~ debug|verbose ]]
+  [[ $(log::level) =~ debug|verbose ]]
 }
 # ----------------------------------------------------------------
 # Check if we're in debug mode
 # ----------------------------------------------------------------
 log::is_debug_enabled() {
-  [[ $LOGGING_LEVEL =~ debug ]]
+  [[ $(log::level) =~ debug ]]
 }

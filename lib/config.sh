@@ -1,3 +1,4 @@
+require logging
 config_file="/vagrant/etc/devbox.properties"
 # Bash make declaration of associated array as local variable
 # by default. We have to use -g option to make it globally visible

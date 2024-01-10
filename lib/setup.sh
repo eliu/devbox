@@ -1,4 +1,4 @@
-require network
+require network logging config
 SETUP_ENV_FILE="/etc/profile.d/devbox.sh"
 # ----------------------------------------------------------------
 # Set up environment variables

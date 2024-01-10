@@ -1,4 +1,4 @@
-require vagrant
+require vagrant logging
 
 ACC_MIRROR_M2="https://mirrors.aliyun.com/apache/maven"
 ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"

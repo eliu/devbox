@@ -1,4 +1,4 @@
-require version setup accelerator cri
+require logging test config version setup accelerator cri
 
 readonly TEMPDIR="$(mktemp -d)"
 readonly M2_MAJOR="3"

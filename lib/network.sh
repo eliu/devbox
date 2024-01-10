@@ -1,3 +1,4 @@
+require logging
 declare -gA network_facts
 # ----------------------------------------------------------------
 # Get uuids of all active connections
