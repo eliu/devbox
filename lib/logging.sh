@@ -1,4 +1,4 @@
-source $MODULE_ROOT/style.sh
+require style
 LOGGING_LEVEL=$(config::get_from_file logging.level)
 
 # ----------------------------------------------------------------

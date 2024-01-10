@@ -1,4 +1,4 @@
-declare -A network_facts
+declare -gA network_facts
 # ----------------------------------------------------------------
 # Get uuids of all active connections
 # Scope: private
@@ -23,7 +23,6 @@ network__get_ipv4_method_of() {
 # Scope: private
 # ----------------------------------------------------------------
 network__gather_uuid_with_auto_method() {
-  log::info "Gathering facts for networks..."
   for uuid in $(network__get_active_uuids); do
     [[ "auto" = $(network__get_ipv4_method_of $uuid) ]] && {
       network_facts[uuid]=$uuid
@@ -68,6 +67,7 @@ network__facts_absent() {
 # ----------------------------------------------------------------
 network::gather_facts() {
   if network__facts_absent; then
+    log::verbose "Gathering facts for networks..."
     [[ -n ${network_facts[uuid]} ]] || network__gather_uuid_with_auto_method
     [[ -n ${network_facts[dns]}  ]] || network__gather_dns_of ${network_facts[uuid]}
     [[ -n ${network_facts[ip]}   ]] || network__gather_static_ip

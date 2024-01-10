@@ -1,5 +1,5 @@
-source $MODULE_ROOT/network.sh
-env_file="/etc/profile.d/devbox.sh"
+require network
+SETUP_ENV_FILE="/etc/profile.d/devbox.sh"
 # ----------------------------------------------------------------
 # Set up environment variables
 # PARAMETERS
@@ -8,9 +8,9 @@ env_file="/etc/profile.d/devbox.sh"
 # ----------------------------------------------------------------
 setup::add_context() {
   if [[ -n $2 ]]; then
-    grep "$2" $env_file > /dev/null 2>&1 || {
+    grep "$2" $SETUP_ENV_FILE > /dev/null 2>&1 || {
       log::verbose "Setting up environment for $1..."
-      echo "$2" >> $env_file
+      echo "$2" >> $SETUP_ENV_FILE
       source /etc/profile > /dev/null
     }
   else
@@ -25,7 +25,7 @@ setup::add_context() {
 # ----------------------------------------------------------------
 setup::del_context() {
   log::verbose "Deleting environment for keyword $1..."
-  sed -i -e "/$1/d" $env_file
+  sed -i -e "/$1/d" $SETUP_ENV_FILE
   source /etc/profile > /dev/null
 }
 
