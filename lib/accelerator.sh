@@ -5,15 +5,24 @@ ACC_MIRROR_NODE="https://mirrors.tuna.tsinghua.edu.cn/nodejs-release"
 ACC_NEED_CACHE=false
 
 # ----------------------------------------------------------------
-# Make cache for repo (right after accelerating repo...)
-# Scope: private
+# Make system cache (right after accelerating repo...)
 # Parameters:
 # $1 -> force making cache regardless the $ACC_NEED_CACHE switch
 # ----------------------------------------------------------------
-accelerator::make_cache() {
+accelerator::system_cache() {
   if $ACC_NEED_CACHE || [[ $1 = "now" ]]; then
     log::info "Making system cache. This will take a few seconds..."
     dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1
+  fi
+}
+
+# ----------------------------------------------------------------
+# Make cache for vagrant
+# ----------------------------------------------------------------
+accelerator::user_cache() {
+  if $ACC_NEED_CACHE; then
+    log::info "Making cache for user 'vagrant'. This will take a few seconds..."
+    vg::exec "dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1"
   fi
 }
 

@@ -18,7 +18,7 @@ installer__init() {
   setup::add_context "TZ" "export TZ=Asia/Shanghai"
   setup::add_context "PATH" "export PATH=/usr/local/bin:\$PATH"
   accelerator::repo
-  accelerator::make_cache
+  accelerator::system_cache
 }
 
 # ----------------------------------------------------------------
@@ -200,7 +200,7 @@ installer::main() {
   installer__epel
   installer__container_runtime
   installer__fe
-  vg::user_cache
+  accelerator::user_cache
   installer__wrap_up
   log::is_debug_enabled && set +x || true
 }

@@ -75,7 +75,7 @@ docker::install() {
     dnf config-manager \
       --add-repo=https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo \
       >$QUIET_STDOUT 2>&1
-    accelerator::make_cache now
+    accelerator::system_cache now
 
     log::verbose "Performing installation..."
     dnf install $QUIET_FLAG_Q -y docker-ce >$QUIET_STDOUT 2>&1
