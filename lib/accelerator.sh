@@ -7,12 +7,15 @@ ACC_NEED_CACHE=false
 # ----------------------------------------------------------------
 # Make cache for repo (right after accelerating repo...)
 # Scope: private
+# Parameters:
+# $1 -> force making cache regardless the $ACC_NEED_CACHE switch
 # ----------------------------------------------------------------
 accelerator::make_cache() {
-  if $ACC_NEED_CACHE; then
-    log::info "Making cache. This may take a few seconds..."
+  if $ACC_NEED_CACHE || [[ $1 = "now" ]]; then
     local cmd="$ACC_NEED_CACHE && dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1"
+    log::info "Making system cache. This will take a few seconds..."
     $cmd
+    log::info "Making cache for user 'vagrant'. This will take a few seconds as well..."
     vg::exec "$cmd"
   fi
 }
