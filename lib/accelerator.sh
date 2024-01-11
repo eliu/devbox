@@ -14,8 +14,6 @@ accelerator::make_cache() {
   if $ACC_NEED_CACHE || [[ $1 = "now" ]]; then
     log::info "Making system cache. This will take a few seconds..."
     dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1
-    log::info "Making cache for user 'vagrant'. This will take a few seconds as well..."
-    vg::exec "dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1"
   fi
 }
 

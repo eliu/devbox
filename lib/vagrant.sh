@@ -44,3 +44,8 @@ vg::env() {
 vg::add_user_group() {
   vg::sudo_exec "usermod -aG $1 vagrant"
 }
+
+vg::user_cache() {
+  log::info "Making cache for user 'vagrant'. This will take a few seconds..."
+  vg::exec "dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1"
+}

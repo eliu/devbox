@@ -1,4 +1,4 @@
-require logging test config version setup accelerator cri
+require logging test config version setup accelerator cri vagrant
 
 readonly TEMPDIR="$(mktemp -d)"
 readonly M2_MAJOR="3"
@@ -18,6 +18,7 @@ installer__init() {
   setup::add_context "TZ" "export TZ=Asia/Shanghai"
   setup::add_context "PATH" "export PATH=/usr/local/bin:\$PATH"
   accelerator::repo
+  accelerator::make_cache
 }
 
 # ----------------------------------------------------------------
@@ -192,14 +193,14 @@ EOF
 installer::main() {
   log::is_debug_enabled && set -x || true
   installer__init
-  installer__epel
-  accelerator::make_cache
   installer__git
   installer__pip3
   installer__openjdk
   installer__maven
+  installer__epel
   installer__container_runtime
   installer__fe
+  vg::user_cache
   installer__wrap_up
   log::is_debug_enabled && set +x || true
 }
