@@ -9,16 +9,26 @@ readonly NODE_FILENAME="node-v${NODE_VERSION}-linux-x64"
 readonly NODE_URL="$ACC_MIRROR_NODE/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
 
 # ----------------------------------------------------------------
-# Accelerate repo and context setups
+# Pre-process before installation
 # Scope: private
 # ----------------------------------------------------------------
-installer__init() {
+installer__preprocess() {
   setup::dns
   setup::hosts
   setup::add_context "TZ" "export TZ=Asia/Shanghai"
   setup::add_context "PATH" "export PATH=/usr/local/bin:\$PATH"
   accelerator::repo
+  cri::config_repo
   accelerator::system_cache
+}
+
+# ----------------------------------------------------------------
+# Post-process after installation
+# Scope: private
+# ----------------------------------------------------------------
+installer__postprocess() {
+  accelerator::system_cache
+  accelerator::user_cache
 }
 
 # ----------------------------------------------------------------
@@ -192,15 +202,15 @@ EOF
 # ----------------------------------------------------------------
 installer::main() {
   log::is_debug_enabled && set -x || true
-  installer__init
-  installer__git
+  installer__preprocess
   installer__pip3
+  installer__container_runtime
+  installer__git
   installer__openjdk
   installer__maven
-  installer__epel
-  installer__container_runtime
   installer__fe
-  accelerator::user_cache
+  installer__epel
+  installer__postprocess
   installer__wrap_up
   log::is_debug_enabled && set +x || true
 }

@@ -10,7 +10,7 @@ ACC_NEED_CACHE=false
 # $1 -> force making cache regardless the $ACC_NEED_CACHE switch
 # ----------------------------------------------------------------
 accelerator::system_cache() {
-  if $ACC_NEED_CACHE || [[ $1 = "now" ]]; then
+  if $ACC_NEED_CACHE; then
     log::info "Making system cache. This will take a few seconds..."
     dnf $QUIET_FLAG_Q makecache >$QUIET_STDOUT 2>&1
   fi
@@ -37,7 +37,7 @@ accelerator::repo() {
       -e 's|^mirrorlist=|#mirrorlist=|g' \
       -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
       /etc/yum.repos.d/rocky*.repo
-    ACC_NEED_CACHE=true
+    accelerator::notify_cache
   }
 }
 
@@ -53,8 +53,15 @@ accelerator::epel() {
       -e 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.aliyun.com|' \
       -e 's|^metalink|#metalink|' \
       /etc/yum.repos.d/epel*
-    ACC_NEED_CACHE=true
+    accelerator::notify_cache
   }
+}
+
+# ----------------------------------------------------------------
+# Mark flag to make cache later
+# ----------------------------------------------------------------
+accelerator::notify_cache() {
+  ACC_NEED_CACHE=true
 }
 
 # ----------------------------------------------------------------

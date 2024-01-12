@@ -70,12 +70,6 @@ docker::accelerate() {
 docker::install() {
   test::cmd docker || {
     log::info "Installing docker-ce..."
-    
-    log::verbose "Configuring repo..."
-    dnf config-manager \
-      --add-repo=https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo \
-      >$QUIET_STDOUT 2>&1
-    accelerator::system_cache now
 
     log::verbose "Performing installation..."
     dnf install $QUIET_FLAG_Q -y docker-ce >$QUIET_STDOUT 2>&1
@@ -113,6 +107,30 @@ docker::remove() {
 #===============================================================================
 docker::version() {
   expr "$(docker -v)" : 'Docker version \(.*\),.*$'
+}
+
+#===  FUNCTION  ================================================================
+#         NAME: docker::config_repo
+#  DESCRIPTION: Configure repo to do accelerations for docker
+# PARAMETER  1: ---
+#===============================================================================
+docker::config_repo() {
+  grep aliyun /etc/yum.repos.d/docker*.repo >/dev/null 2>&1 || {
+    log::verbose "Configuring docker-ce repo..."
+    dnf config-manager \
+      --add-repo=https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo \
+      >$QUIET_STDOUT 2>&1
+    accelerator::notify_cache
+  }
+}
+
+#===  FUNCTION  ================================================================
+#         NAME: cri::config_repo
+#  DESCRIPTION: Configure repo to do accelerations
+# PARAMETER  1: ---
+#===============================================================================
+cri::config_repo() {
+  docker::config_repo
 }
 
 #===  FUNCTION  ================================================================
