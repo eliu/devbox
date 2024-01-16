@@ -1,4 +1,4 @@
-require logging test vagrant accelerator
+require logging vagrant accelerator
 #===  FUNCTION  ================================================================
 #         NAME: podman::accelerate
 #  DESCRIPTION: Accelerate registries of podman
@@ -16,8 +16,8 @@ podman::accelerate() {
 # PARAMETER  1: ---
 #===============================================================================
 podman::install() {
-  test::cmd podman || {
-    test::cmd python3 pip3 || log::fatal "You must enable python3-pip first."
+  has_command podman || {
+    has_command python3 pip3 || log::fatal "You must enable python3-pip first."
     log::info "Installing podman..."
     dnf install $QUIET_FLAG_Q -y podman >$QUIET_STDOUT 2>&1
 
@@ -33,7 +33,7 @@ podman::install() {
 # PARAMETER  1: ---
 #===============================================================================
 podman::remove() {
-  test::cmd podman && {
+  has_command podman && {
     log::info "Uninstalling podman-compose..."
     vg::exec "pip3 $QUIET_FLAG_Q uninstall podman-compose" >$QUIET_STDOUT 2>&1
     log::info "Uninstalling podman..."
@@ -68,7 +68,7 @@ docker::accelerate() {
 # PARAMETER  1: ---
 #===============================================================================
 docker::install() {
-  test::cmd docker || {
+  has_command docker || {
     log::info "Installing docker-ce..."
 
     log::verbose "Performing installation..."
@@ -94,7 +94,7 @@ docker::install() {
 # PARAMETER  1: ---
 #===============================================================================
 docker::remove() {
-  test::cmd docker && {
+  has_command docker && {
     log::info "Uninstalling docker-ce...."
     dnf remove $QUIET_FLAG_Q -y docker-ce >$QUIET_STDOUT 2>&1
   } || true

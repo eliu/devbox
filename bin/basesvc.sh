@@ -10,7 +10,7 @@ SVC_HOME=$VAGRANT_HOME/.local/basesvc
 # PARAMETER  1: ---
 #===============================================================================
 basesvc::init() {
-  test::cmd $CRI_COMMAND || log::fatal "You need enable container option first."
+  has_command $CRI_COMMAND || log::fatal "You need enable container option first."
 
   [[ -d $SVC_HOME ]] || {
     log::info "Deploying base services..."

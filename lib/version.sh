@@ -1,4 +1,3 @@
-require test
 # ----------------------------------------------------------------
 # Print os info
 # ----------------------------------------------------------------
@@ -17,40 +16,40 @@ version::epel(){
 # Print currently installed java version
 # ----------------------------------------------------------------
 version::java() {
-  test::cmd java && java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}'
+  has_command java && java -version 2>&1 | head -n 1 | awk -F'"' '{print $2}'
 }
 
 # ----------------------------------------------------------------
 # Print currently installed maven version
 # ----------------------------------------------------------------
 version::maven() {
-  test::cmd java && test::cmd mvn && mvn -version | head -n 1 | awk '{print $3}'
+  has_command java && has_command mvn && mvn -version | head -n 1 | awk '{print $3}'
 }
 
 # ----------------------------------------------------------------
 # Print currently installed git version
 # ----------------------------------------------------------------
 version::git() {
-  test::cmd git && git version | awk '{print $3}'
+  has_command git && git version | awk '{print $3}'
 }
 
 # ----------------------------------------------------------------
 # Print currently installed python3 version
 # ----------------------------------------------------------------
 version::python3() {
-  test::cmd python3 && python3 -V | cut -d' ' -f2
+  has_command python3 && python3 -V | cut -d' ' -f2
 }
 
 # ----------------------------------------------------------------
 # Print currently installed pip3 version
 # ----------------------------------------------------------------
 version::pip3() {
-  test::cmd pip3 && pip3 -V | cut -d' ' -f2
+  has_command pip3 && pip3 -V | cut -d' ' -f2
 }
 
 # ----------------------------------------------------------------
 # Print version of the component commonly using form `command -v`
 # ----------------------------------------------------------------
 version::of() {
-  test::cmd $1 && $1 -v
+  has_command $1 && $1 -v
 }

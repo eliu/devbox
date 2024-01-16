@@ -16,8 +16,34 @@ function require() {
   done
 }
 
-require test config logging
-config::load_from_file
+#===  FUNCTION  ================================================================
+#         NAME: format_hashtable
+#  DESCRIPTION: Format associated array in conjunction with separator
+# PARAMETER  1: Name of the associated array
+# PARAMETER  2: Separator, default to '=' if not specified
+#===============================================================================
+function format_hashtable() {
+  local -n ht=$1
+  local sep=${2:-=}
+  for key in ${!ht[@]}; do
+    echo "$key $sep ${ht[$key]:-[NONE]}"
+  done | column -t
+}
+
+#===  FUNCTION  ================================================================
+#         NAME: has_command
+#  DESCRIPTION: Check if one or more specified commands exists
+# PARAMETER  @: Commands separated with spaces
+#===============================================================================
+function has_command() {
+  while [ $# -gt 0 ]; do
+    command -v $1 >/dev/null 2>&1 && shift || return
+  done
+  return 0
+}
+
+require tconfig logging
+config::load_properties
 
 QUIET_FLAG_Q=$(log::is_verbose_enabled || printf -- "-q")
 QUIET_FLAG_S=$(log::is_verbose_enabled || printf -- "-s")

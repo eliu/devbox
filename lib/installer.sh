@@ -1,4 +1,4 @@
-require logging test config version setup accelerator cri vagrant
+require logging config version setup accelerator cri vagrant
 
 readonly TEMPDIR="$(mktemp -d)"
 readonly M2_MAJOR="3"
@@ -57,12 +57,12 @@ installer__epel() {
 # ----------------------------------------------------------------
 installer__git() {
   config::get installer.git.enabled && {
-    test::cmd git || {
+    has_command git || {
       log::info "Installing git..."
       dnf install $QUIET_FLAG_Q -y git >$QUIET_STDOUT
     } 
   } || {
-    test::cmd git && {
+    has_command git && {
       log::info "Uninstalling git..."
       dnf remove $QUIET_FLAG_Q -y git >$QUIET_STDOUT
     } || true
@@ -75,7 +75,7 @@ installer__git() {
 # Scope: private
 # ----------------------------------------------------------------
 installer__pip3() {
-  test::cmd pip3 || {
+  has_command pip3 || {
     log::info "Installing python3-pip..."
     dnf install $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
     accelerator::pip
@@ -96,13 +96,13 @@ installer__container_runtime() {
 # ----------------------------------------------------------------
 installer__openjdk() {
   config::get installer.openjdk.enabled && {
-    test::cmd java || {
+    has_command java || {
       log::info "Installing openjdk-8-devel..."
       dnf install $QUIET_FLAG_Q -y java-1.8.0-openjdk-devel >$QUIET_STDOUT
       setup::add_context "JAVA_HOME" "export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)"
     }
   } || {
-    test::cmd java && {
+    has_command java && {
       setup::del_context "JAVA_HOME"
       log::info "Uninstalling openjdk-8-devel..."
       dnf remove $QUIET_FLAG_Q -y java-1.8.0-openjdk-devel >$QUIET_STDOUT
@@ -117,8 +117,8 @@ installer__openjdk() {
 installer__maven() {
   config::get installer.maven.enabled && {
     # check dependencies
-    test::cmd mvn || {
-      test::cmd java || log::fatal "You must install java platform first!"
+    has_command mvn || {
+      has_command java || log::fatal "You must install java platform first!"
       log::info "Installing maven..."
       log::verbose "Downloading ${M2_URL}"
       curl -sSL ${M2_URL} -o "${TEMPDIR}/apache-maven-${M2_VERSION}-bin.tar.gz"
@@ -129,7 +129,7 @@ installer__maven() {
       setup::add_context "PATH" "export PATH=\$MAVEN_HOME/bin:\$PATH"
     }
   } || {
-    test::cmd mvn && {
+    has_command mvn && {
       setup::del_context "MAVEN_HOME"
       log::info "Uninstalling maven..."
       rm -fr /opt/apache-maven*
@@ -143,7 +143,7 @@ installer__maven() {
 # ----------------------------------------------------------------
 installer__fe() {
   config::get installer.frontend.enabled && {
-    test::cmd npm || {
+    has_command npm || {
       log::info "Installing node and npm..."
       log::verbose "Downloading ${NODE_URL}"
       curl -sSL ${NODE_URL} -o "${TEMPDIR}/${NODE_FILENAME}.tar.xz"
@@ -153,14 +153,14 @@ installer__fe() {
       accelerator::npm_registry
     }
 
-    test::cmd yarn lerna || {
+    has_command yarn lerna || {
       log::info "Installing yarn and lerna..."
       npm install $QUIET_FLAG_S -g npm >$QUIET_STDOUT || true
       npm install $QUIET_FLAG_S -g yarn >$QUIET_STDOUT || true
       yarn $QUIET_FLAG_S global add lerna >$QUIET_STDOUT || true
     }
   } || {
-    test::cmd yarn lerna && {
+    has_command yarn lerna && {
       log::info "Uninstalling yarn and lerna..."
       yarn $QUIET_FLAG_S global remove lerna >$QUIET_STDOUT || true
       npm uninstall $QUIET_FLAG_S -g yarn >$QUIET_STDOUT || true

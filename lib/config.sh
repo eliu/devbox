@@ -41,15 +41,11 @@ config::get() {
 # ----------------------------------------------------------------
 # Load all properties into cache
 # ----------------------------------------------------------------
-config::load_from_file() {
+config::load_properties() {
   while IFS='=' read -r prop value; do
     cache[$prop]=$value
   done < <(cat $config_file | sed -e '/^[[:space:]]*$/d' -e '/^#/d')
 
-  if log::is_verbose_enabled; then
-    log::verbose "All cached items (${#cache[@]}) from config file are:"
-    for prop in ${!cache[@]}; do
-      log::verbose "$prop -> ${cache[$prop]:-[NONE]}"
-    done | sort | column -t
-  fi
+  log::verbose "All cached items (${#cache[@]}) from config file are:"
+  log::is_verbose_enabled && format_hashtable cache || true
 }
