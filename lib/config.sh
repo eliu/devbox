@@ -49,7 +49,7 @@ config::load_from_file() {
   if log::is_verbose_enabled; then
     log::verbose "All cached items (${#cache[@]}) from config file are:"
     for prop in ${!cache[@]}; do
-      log::verbose "$prop -> ${cache[$prop]}"
+      log::verbose "$prop -> ${cache[$prop]:-[NONE]}"
     done | sort | column -t
   fi
 }

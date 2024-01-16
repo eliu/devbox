@@ -76,7 +76,7 @@ network::gather_facts() {
     if log::is_verbose_enabled; then
       log::verbose "network_facts:"
       for key in ${!network_facts[@]}; do
-        log::verbose "$key -> ${network_facts[$key]}"
+        log::verbose "$key -> ${network_facts[$key]:-[NONE]}"
       done | column -t
     fi
   fi

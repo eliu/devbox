@@ -34,6 +34,12 @@ setup::del_context() {
 # ----------------------------------------------------------------
 setup::hosts() {
   local host_name=$(config::get setup.host.name)
+
+  if [[ -z $host_name ]]; then
+    log::warn "'setup.host.name' not set properly."
+    return 0
+  fi
+
   config::get setup.host.enabled && {
     cat /etc/hosts | grep $host_name > /dev/null || {
       log::info "Setting up guest hosts..."
