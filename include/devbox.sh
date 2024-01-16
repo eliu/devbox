@@ -27,7 +27,7 @@ function format_hashtable() {
   local sep=${2:-=}
   for key in ${!ht[@]}; do
     echo "$key $sep ${ht[$key]:-[NONE]}"
-  done | column -t
+  done | sort | column -t
 }
 
 #===  FUNCTION  ================================================================
