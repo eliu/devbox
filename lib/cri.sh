@@ -130,7 +130,7 @@ docker::config_repo() {
 # PARAMETER  1: ---
 #===============================================================================
 cri::config_repo() {
-  docker::config_repo
+  config::get installer.container.enabled && docker::config_repo || true
 }
 
 #===  FUNCTION  ================================================================
