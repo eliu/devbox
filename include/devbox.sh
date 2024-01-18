@@ -17,16 +17,16 @@ function require() {
 }
 
 #===  FUNCTION  ================================================================
-#         NAME: format_hashtable
+#         NAME: fmt_dict
 #  DESCRIPTION: Format associated array in conjunction with separator
 # PARAMETER  1: Name of the associated array
 # PARAMETER  2: Separator, default to '=' if not specified
 #===============================================================================
-function format_hashtable() {
-  local -n ht=$1
+function fmt_dict() {
+  local -n dict=$1
   local sep=${2:-=}
-  for key in ${!ht[@]}; do
-    echo "$key $sep ${ht[$key]:-[NONE]}"
+  for key in ${!dict[@]}; do
+    echo "$key $sep ${dict[$key]:-[NONE]}"
   done | sort | column -t
 }
 

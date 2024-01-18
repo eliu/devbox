@@ -47,5 +47,5 @@ config::load_properties() {
   done < <(cat $config_file | sed -e '/^[[:space:]]*$/d' -e '/^#/d')
 
   log::verbose "All cached items (${#cache[@]}) from config file are:"
-  log::is_verbose_enabled && format_hashtable cache || true
+  log::is_verbose_enabled && fmt_dict cache || true
 }
