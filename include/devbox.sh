@@ -42,7 +42,7 @@ function has_command() {
   return 0
 }
 
-require tconfig logging
+require config logging
 config::load_properties
 
 QUIET_FLAG_Q=$(log::is_verbose_enabled || printf -- "-q")
