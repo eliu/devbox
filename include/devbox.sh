@@ -45,7 +45,10 @@ function has_command() {
 require config logging
 config::load_properties
 
-QUIET_FLAG_Q=$(log::is_verbose_enabled || printf -- "-q")
-QUIET_FLAG_S=$(log::is_verbose_enabled || printf -- "-s")
-QUIET_STDOUT=$(log::is_verbose_enabled && echo "/dev/stdout" || echo "/dev/null")
-QUIET_PULL=$(log::is_verbose_enabled || printf -- "--quiet-pull")
+QUIET_STDOUT="/dev/stdout"
+if ! log::is_verbose_enabled; then
+  QUIET_STDOUT="/dev/null"
+  QUIET_FLAG_Q="-q"
+  QUIET_FLAG_S="-s"
+  QUIET_PULL="--quiet-pull"
+fi
