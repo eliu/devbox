@@ -11,7 +11,7 @@ declare -gA cache
 # $1 -> key
 # $1 -> raw value to be parsed
 # ----------------------------------------------------------------
-config__parse() {
+config__parsevalue() {
   [[ $1 =~ enabled$ ]] && {
     case $2 in
       "true") return 0 ;;
@@ -22,12 +22,21 @@ config__parse() {
 }
 
 # ----------------------------------------------------------------
+# Trim all spaces at both leading and trailing
+# Parameters
+# $1 -> string to be trimmed
+# ----------------------------------------------------------------
+config__trimspaces() {
+  echo $1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
+# ----------------------------------------------------------------
 # Get property directly from file
 # This is used when config module does not load in time.
 # $1 -> property name
 # ----------------------------------------------------------------
 config::get_from_file() {
-  config__parse $1 $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
+  config__parsevalue $1 $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
 }
 
 # ----------------------------------------------------------------
@@ -35,7 +44,7 @@ config::get_from_file() {
 # $1 -> property name
 # ----------------------------------------------------------------
 config::get() {
-  config__parse $1 ${cache[$1]}
+  config__parsevalue $1 ${cache[$1]}
 }
 
 # ----------------------------------------------------------------
@@ -43,7 +52,7 @@ config::get() {
 # ----------------------------------------------------------------
 config::load_properties() {
   while IFS='=' read -r prop value; do
-    cache[$prop]=$value
+    cache[$(config__trimspaces $prop)]=$(config__trimspaces $value)
   done < <(cat $config_file | sed -e '/^[[:space:]]*$/d' -e '/^#/d')
 
   log::verbose "All cached items (${#cache[@]}) from config file are:"
