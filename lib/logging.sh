@@ -18,7 +18,7 @@ log::fatal() { echo $(style::red "[FATA] $@"); exit 1
 # Logging a verbose message
 # ----------------------------------------------------------------
 log::verbose() { 
-  log::is_verbose_enabled && echo $(style::cyan "VERBOSE: $@") || true
+  log::is_verbose && echo $(style::cyan "VERBOSE: $@") || true
 }
 
 # ----------------------------------------------------------------
@@ -31,12 +31,12 @@ log::level() {
 # ----------------------------------------------------------------
 # Check if we're in verbose mode or lower level logging
 # ----------------------------------------------------------------
-log::is_verbose_enabled() {
+log::is_verbose() {
   [[ $(log::level) =~ debug|verbose ]]
 }
 # ----------------------------------------------------------------
 # Check if we're in debug mode
 # ----------------------------------------------------------------
-log::is_debug_enabled() {
+log::is_debug() {
   [[ $(log::level) =~ debug ]]
 }

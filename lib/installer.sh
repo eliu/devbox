@@ -201,7 +201,7 @@ EOF
 # Print machine info and flags
 # ----------------------------------------------------------------
 installer::main() {
-  log::is_debug_enabled && set -x || true
+  log::is_debug && set -x || true
   installer::preprocess
   installer::pip3
   installer::container_runtime
@@ -212,5 +212,5 @@ installer::main() {
   installer::epel
   installer::postprocess
   installer::wrap_up
-  log::is_debug_enabled && set +x || true
+  log::is_debug && set +x || true
 }

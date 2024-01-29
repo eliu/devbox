@@ -46,7 +46,7 @@ require config logging
 config::load_properties
 
 QUIET_STDOUT="/dev/stdout"
-if ! log::is_verbose_enabled; then
+if ! log::is_verbose; then
   QUIET_STDOUT="/dev/null"
   QUIET_FLAG_Q="-q"
   QUIET_FLAG_S="-s"

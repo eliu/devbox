@@ -3,7 +3,7 @@ config_file="/vagrant/etc/devbox.properties"
 # Bash make declaration of associated array as local variable
 # by default. We have to use -g option to make it globally visible
 # especially when sourcing this file inside a function.
-declare -gA cache
+declare -gA config_cache
 
 # ----------------------------------------------------------------
 # Parse value from config
@@ -22,39 +22,30 @@ config::parsevalue() {
 }
 
 # ----------------------------------------------------------------
-# Trim all spaces at both leading and trailing
+# Strip both leading and trailing whitespaces.
 # Parameters
-# $1 -> string to be trimmed
+# $1 -> string to be stripped
 # ----------------------------------------------------------------
-config::trimspaces() {
+config::strip() {
   echo $1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
 # ----------------------------------------------------------------
-# Get property directly from file
-# This is used when config module does not load in time.
-# $1 -> property name
-# ----------------------------------------------------------------
-config::get_from_file() {
-  config::parsevalue $1 $(grep "^$1" $config_file | cut -d'=' -f2 | awk '{$1=$1;print}')
-}
-
-# ----------------------------------------------------------------
-# Get property from cache
+# Get property from config_cache
 # $1 -> property name
 # ----------------------------------------------------------------
 config::get() {
-  config::parsevalue $1 ${cache[$1]}
+  config::parsevalue $1 ${config_cache[$1]}
 }
 
 # ----------------------------------------------------------------
-# Load all properties into cache
+# Load all properties into config_cache
 # ----------------------------------------------------------------
 config::load_properties() {
   while IFS='=' read -r prop value; do
-    cache[$(config::trimspaces $prop)]=$(config::trimspaces $value)
+    config_cache[$(config::strip $prop)]=$(config::strip $value)
   done < <(cat $config_file | sed -e '/^[[:space:]]*$/d' -e '/^#/d')
 
-  log::verbose "All cached items (${#cache[@]}) from config file are:"
-  log::is_verbose_enabled && fmt_dict cache || true
+  log::is_verbose && fmt_dict config_cache || true
+  log::verbose "(${#config_cache[@]}) properties already cached."
 }

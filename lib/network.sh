@@ -73,7 +73,7 @@ network::gather_facts() {
     [[ -n ${network_facts[dns]}  ]] || network::gather_dns_of ${network_facts[uuid]}
     [[ -n ${network_facts[ip]}   ]] || network::gather_static_ip
 
-    log::is_verbose_enabled && fmt_dict network_facts || true
+    log::is_verbose && fmt_dict network_facts || true
   fi
 }
 
