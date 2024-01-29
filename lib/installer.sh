@@ -12,7 +12,7 @@ readonly NODE_URL="$ACC_MIRROR_NODE/v${NODE_VERSION}/${NODE_FILENAME}.tar.xz"
 # Pre-process before installation
 # Scope: private
 # ----------------------------------------------------------------
-installer__preprocess() {
+installer::preprocess() {
   setup::dns
   setup::hosts
   setup::add_context "TZ" "export TZ=Asia/Shanghai"
@@ -26,7 +26,7 @@ installer__preprocess() {
 # Post-process after installation
 # Scope: private
 # ----------------------------------------------------------------
-installer__postprocess() {
+installer::postprocess() {
   accelerator::system_cache
   accelerator::user_cache
 }
@@ -35,7 +35,7 @@ installer__postprocess() {
 # Install and accelerate epel repo
 # Scope: private
 # ----------------------------------------------------------------
-installer__epel() {
+installer::epel() {
   config::get installer.epel.enabled && {
     dnf list installed "epel*" > /dev/null 2>&1 || {
       log::info "Installing epel-release..."
@@ -55,7 +55,7 @@ installer__epel() {
 # Install git
 # Scope: private
 # ----------------------------------------------------------------
-installer__git() {
+installer::git() {
   config::get installer.git.enabled && {
     has_command git || {
       log::info "Installing git..."
@@ -74,7 +74,7 @@ installer__git() {
 # We make pip3 installed by default since python3 is available.
 # Scope: private
 # ----------------------------------------------------------------
-installer__pip3() {
+installer::pip3() {
   has_command pip3 || {
     log::info "Installing python3-pip..."
     dnf install $QUIET_FLAG_Q -y python3-pip >$QUIET_STDOUT
@@ -86,7 +86,7 @@ installer__pip3() {
 # Install container runtime
 # Scope: private
 # ----------------------------------------------------------------
-installer__container_runtime() {
+installer::container_runtime() {
   config::get installer.container.enabled && cri::install || cri::remove
 }
 
@@ -94,7 +94,7 @@ installer__container_runtime() {
 # Install openjdk
 # Scope: private
 # ----------------------------------------------------------------
-installer__openjdk() {
+installer::openjdk() {
   config::get installer.openjdk.enabled && {
     has_command java || {
       log::info "Installing openjdk-8-devel..."
@@ -114,7 +114,7 @@ installer__openjdk() {
 # Install Maven
 # Scope: private
 # ----------------------------------------------------------------
-installer__maven() {
+installer::maven() {
   config::get installer.maven.enabled && {
     # check dependencies
     has_command mvn || {
@@ -141,7 +141,7 @@ installer__maven() {
 # Install frontend tools
 # Scope: private
 # ----------------------------------------------------------------
-installer__fe() {
+installer::fe() {
   config::get installer.frontend.enabled && {
     has_command npm || {
       log::info "Installing node and npm..."
@@ -175,7 +175,7 @@ installer__fe() {
 # Print machine info and flags
 # Scope: private
 # ----------------------------------------------------------------
-installer__wrap_up() {
+installer::wrap_up() {
   network::gather_facts
   log::verbose "Installation complete! Wrap it up..."
   cat << EOF | column -t -s "|" -N CATEGORY,NAME,VALUE
@@ -202,15 +202,15 @@ EOF
 # ----------------------------------------------------------------
 installer::main() {
   log::is_debug_enabled && set -x || true
-  installer__preprocess
-  installer__pip3
-  installer__container_runtime
-  installer__git
-  installer__openjdk
-  installer__maven
-  installer__fe
-  installer__epel
-  installer__postprocess
-  installer__wrap_up
+  installer::preprocess
+  installer::pip3
+  installer::container_runtime
+  installer::git
+  installer::openjdk
+  installer::maven
+  installer::fe
+  installer::epel
+  installer::postprocess
+  installer::wrap_up
   log::is_debug_enabled && set +x || true
 }

@@ -4,7 +4,7 @@ declare -gA network_facts
 # Get uuids of all active connections
 # Scope: private
 # ----------------------------------------------------------------
-network__get_active_uuids() {
+network::get_active_uuids() {
   nmcli -get-values UUID conn show --active
 }
 
@@ -13,7 +13,7 @@ network__get_active_uuids() {
 # $1 -> network uuid
 # Scope: private
 # ----------------------------------------------------------------
-network__get_ipv4_method_of() {
+network::get_ipv4_method_of() {
   nmcli -terse conn show uuid $1 \
     | grep ipv4.method \
     | awk -F '[:/]' '{print $2}'
@@ -23,9 +23,9 @@ network__get_ipv4_method_of() {
 # Gather network uuid with auto ipv4 method
 # Scope: private
 # ----------------------------------------------------------------
-network__gather_uuid_with_auto_method() {
-  for uuid in $(network__get_active_uuids); do
-    [[ "auto" = $(network__get_ipv4_method_of $uuid) ]] && {
+network::gather_uuid_with_auto_method() {
+  for uuid in $(network::get_active_uuids); do
+    [[ "auto" = $(network::get_ipv4_method_of $uuid) ]] && {
       network_facts[uuid]=$uuid
       return
     }
@@ -38,7 +38,7 @@ network__gather_uuid_with_auto_method() {
 # $1 -> network uuid
 # Scope: private
 # ----------------------------------------------------------------
-network__gather_dns_of() {
+network::gather_dns_of() {
   network_facts[dns]=$(nmcli -terse conn show $1 | grep "ipv4.dns:" | cut -d: -f2)
 }
 
@@ -46,7 +46,7 @@ network__gather_dns_of() {
 # Gather static ip address
 # Scope: private
 # ----------------------------------------------------------------
-network__gather_static_ip() {
+network::gather_static_ip() {
   network_facts[ip]=$(ip -br -f inet addr | grep 192 | awk -F'[ /]+' '{print $3}')
 }
 
@@ -54,7 +54,7 @@ network__gather_static_ip() {
 # Check if any of the facts is absent
 # Scope: private
 # ----------------------------------------------------------------
-network__facts_absent() {
+network::facts_absent() {
   [[ -z ${network_facts[uuid]} ]] || \
   [[ -z ${network_facts[dns]}  ]] || \
   [[ -z ${network_facts[ip]}   ]]
@@ -67,11 +67,11 @@ network__facts_absent() {
 # 3. dns list  -> exported to network_facts[dns]
 # ----------------------------------------------------------------
 network::gather_facts() {
-  if network__facts_absent; then
+  if network::facts_absent; then
     log::verbose "Gathering facts for networks..."
-    [[ -n ${network_facts[uuid]} ]] || network__gather_uuid_with_auto_method
-    [[ -n ${network_facts[dns]}  ]] || network__gather_dns_of ${network_facts[uuid]}
-    [[ -n ${network_facts[ip]}   ]] || network__gather_static_ip
+    [[ -n ${network_facts[uuid]} ]] || network::gather_uuid_with_auto_method
+    [[ -n ${network_facts[dns]}  ]] || network::gather_dns_of ${network_facts[uuid]}
+    [[ -n ${network_facts[ip]}   ]] || network::gather_static_ip
 
     log::is_verbose_enabled && fmt_dict network_facts || true
   fi
