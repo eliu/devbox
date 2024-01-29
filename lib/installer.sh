@@ -39,8 +39,7 @@ installer::epel() {
   config::get installer.epel.enabled && {
     dnf list installed "epel*" > /dev/null 2>&1 || {
       log::info "Installing epel-release..."
-      dnf install $QUIET_FLAG_Q -y \
-        https://mirrors.aliyun.com/epel/epel-release-latest-9.noarch.rpm >$QUIET_STDOUT
+      dnf install $QUIET_FLAG_Q -y epel-release >$QUIET_STDOUT 2>&1
       accelerator::epel
     }
   } || {
