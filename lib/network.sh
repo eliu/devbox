@@ -49,31 +49,20 @@ network::gather_static_ip() {
 }
 
 # ----------------------------------------------------------------
-# Check if any of the facts is absent
-# Scope: private
-# ----------------------------------------------------------------
-network::facts_absent() {
-  [[ -z ${network_facts[dns]}  ]] || \
-  [[ -z ${network_facts[ip]}   ]]
-}
-
-# ----------------------------------------------------------------
 # Gather all facts for network info, including
 # 1. uuid      -> exported to network_facts[uuid]
 # 2. static ip -> exported to network_facts[ip]
 # 3. dns list  -> exported to network_facts[dns]
 # ----------------------------------------------------------------
 network::gather_facts() {
-  if network::facts_absent; then
-    log::verbose "Gathering facts for networks..."
-    if [[ $1 = '--of-all' ]]; then
-      network::gather_uuid_with_auto_method
-    fi
-    network::gather_dns
-    network::gather_static_ip
-
-    log::is_verbose && fmt_dict network_facts || true
+  log::verbose "Gathering facts for networks...$1"
+  if [[ $1 = '--of-all' ]]; then
+    network::gather_uuid_with_auto_method
   fi
+  network::gather_dns
+  network::gather_static_ip
+
+  log::is_verbose && fmt_dict network_facts || true
 }
 
 network::dns_available() {
@@ -90,16 +79,14 @@ network::resolve_dns() {
 
   network::gather_facts --of-all
   
-  [[ -n ${network_facts[dns]} && -n ${network_facts[uuid]} ]] || {
-    log::info "Resolving dns..."
-    for nameserver in $(cat /vagrant/etc/networks/nameserver.conf); do
-      log::verbose "Adding nameserver $nameserver..."
-      nmcli con mod ${network_facts[uuid]} +ipv4.dns $nameserver
-    done
+  log::info "Resolving dns..."
+  for nameserver in $(cat /vagrant/etc/networks/nameserver.conf); do
+    log::verbose "Adding nameserver $nameserver..."
+    nmcli con mod ${network_facts[uuid]} +ipv4.dns $nameserver
+  done
 
-    log::verbose "Restarting network manager..."
-    systemctl restart NetworkManager
-  }
+  log::verbose "Restarting network manager..."
+  systemctl restart NetworkManager
 }
 
 export network_facts
