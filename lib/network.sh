@@ -34,12 +34,10 @@ network::gather_uuid_with_auto_method() {
 }
 
 # ----------------------------------------------------------------
-# Gather dns list of specified network
-# $1 -> network uuid
-# Scope: private
+# Gather dns list
 # ----------------------------------------------------------------
-network::gather_dns_of() {
-  network_facts[dns]=$(nmcli -terse conn show $1 | grep "ipv4.dns:" | cut -d: -f2)
+network::gather_dns() {
+  network_facts[dns]=$(grep nameserver /etc/resolv.conf | awk '{print $2}' | xargs | tr ' ' ',')
 }
 
 # ----------------------------------------------------------------
@@ -47,7 +45,7 @@ network::gather_dns_of() {
 # Scope: private
 # ----------------------------------------------------------------
 network::gather_static_ip() {
-  network_facts[ip]=$(ip -br -f inet addr | grep 192 | awk -F'[ /]+' '{print $3}')
+  network_facts[ip]=$(ip -brief -family inet addr | grep 192 | awk -F'[ /]+' '{print $3}')
 }
 
 # ----------------------------------------------------------------
@@ -55,7 +53,6 @@ network::gather_static_ip() {
 # Scope: private
 # ----------------------------------------------------------------
 network::facts_absent() {
-  [[ -z ${network_facts[uuid]} ]] || \
   [[ -z ${network_facts[dns]}  ]] || \
   [[ -z ${network_facts[ip]}   ]]
 }
@@ -69,19 +66,29 @@ network::facts_absent() {
 network::gather_facts() {
   if network::facts_absent; then
     log::verbose "Gathering facts for networks..."
-    [[ -n ${network_facts[uuid]} ]] || network::gather_uuid_with_auto_method
-    [[ -n ${network_facts[dns]}  ]] || network::gather_dns_of ${network_facts[uuid]}
-    [[ -n ${network_facts[ip]}   ]] || network::gather_static_ip
+    if [[ $1 = '--of-all' ]]; then
+      network::gather_uuid_with_auto_method
+    fi
+    network::gather_dns
+    network::gather_static_ip
 
     log::is_verbose && fmt_dict network_facts || true
   fi
+}
+
+network::dns_available() {
+  [[ $(grep nameserver /etc/resolv.conf | wc -l) -ge 2 ]]
 }
 
 # ----------------------------------------------------------------
 # Resolve DNS issue in China
 # ----------------------------------------------------------------
 network::resolve_dns() {
-  network::gather_facts
+  if network::dns_available; then
+    return
+  fi
+
+  network::gather_facts --of-all
   
   [[ -n ${network_facts[dns]} && -n ${network_facts[uuid]} ]] || {
     log::info "Resolving dns..."
