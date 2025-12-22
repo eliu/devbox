@@ -16,7 +16,14 @@ Vagrant.configure("2") do |config|
   end
 
   # Bootstrap step right after `vagrant up`
-  config.vm.provision "shell", keep_color: true, path: "bin/boot.sh"
+  config.vm.provision "shell", keep_color: true, inline: <<-SHELL
+    #!/usr/bin/env bash
+    set -e
+    source /vagrant/include/devbox.sh
+    require installer
+    installer::main
+  SHELL
+
 
   # Provision base services using podman compose
   config.vm.provision "base services", type: "shell", 
