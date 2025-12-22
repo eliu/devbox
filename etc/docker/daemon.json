@@ -1,7 +1,6 @@
 {
     "registry-mirrors": [
-        "https://8km017g6.mirror.aliyuncs.com",
-        "https://hub-mirror.c.163.com",
-        "https://registry.docker-cn.com"
+        "https://docker.1ms.run",
+        "https://docker.xuanyuan.me"
     ]
 }
