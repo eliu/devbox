@@ -53,7 +53,7 @@ devbox 中所安装的所有基础软件都可通过配置文件来控制是否�
 | installer.openjdk.enabled    | 布尔   | 是否安装 `Open JDK`                             | false       |
 | installer.epel.enabled       | 布尔   | 是否安装 `EPEL`                                 | false       |
 | installer.maven.enabled      | 布尔   | 是否安装 `Maven`                                | false       |
-| installer.frontend.enabled   | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna` | false       |
+| installer.npm.enabled   | 布尔   | 是否安装 `前端工具`，包括 `npm`，`yarn`,`lerna` | false       |
 | installer.container.enabled  | 布尔   | 是否安装容器运行时                              | false       |
 | installer.containert.runtime | 字符串 | 容器运行时：podman 或者 docker                  | docker      |
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-source /vagrant/include/devbox.sh
+source /vagrant/include/devbox.env
 require vagrant cri
 SVC_HOME=$VAGRANT_HOME/.local/basesvc
 #===  FUNCTION  ================================================================
@@ -15,7 +15,7 @@ basesvc::init() {
   [[ -d $SVC_HOME ]] || {
     log::info "Deploying base services..."
     mkdir -p "$SVC_HOME"
-    \cp -r /vagrant/etc/basesvc/* "$SVC_HOME"
+    \cp -r /vagrant/provisioners/base_service/config/* "$SVC_HOME"
     vg::enable_linger
   }
 }

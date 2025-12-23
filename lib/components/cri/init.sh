@@ -1,4 +1,11 @@
-require logging vagrant accelerator
+require logging
+require vagrant
+require repo
+
+cri::installer() {
+  config::get installer.container.enabled && cri::install || cri::remove
+}
+
 #===  FUNCTION  ================================================================
 #         NAME: podman::accelerate
 #  DESCRIPTION: Accelerate registries of podman
@@ -7,7 +14,7 @@ require logging vagrant accelerator
 podman::accelerate() {
   log::info "Accelerating container registry..."
   mv /etc/containers/registries.conf /etc/containers/registries.conf.bak
-  \cp -f /vagrant/etc/containers/registries.conf /etc/containers/registries.conf
+  \cp -f /vagrant/lib/components/cri/containers/registries.conf /etc/containers/registries.conf
 }
 
 #===  FUNCTION  ================================================================
@@ -59,7 +66,7 @@ docker::accelerate() {
   if [[ -f /etc/docker/daemon.json ]]; then
     mv /etc/docker/daemon.json /etc/docker/daemon.json.bak
   fi
-  \cp -f /vagrant/etc/docker/daemon.json /etc/docker/daemon.json
+  \cp -f /vagrant/lib/components/cri/docker/daemon.json /etc/docker/daemon.json
 }
 
 #===  FUNCTION  ================================================================
@@ -120,7 +127,7 @@ docker::config_repo() {
     dnf config-manager \
       --add-repo=https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo \
       >$QUIET_STDOUT 2>&1
-    accelerator::notify_cache
+    repo::notify_cache
   }
 }
 
