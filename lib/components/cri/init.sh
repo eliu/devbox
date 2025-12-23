@@ -173,8 +173,7 @@ cri::cmd() {
 # PARAMETER  1: ---
 #===============================================================================
 cri::compose() {
-  cri::is_podman && podman-compose $@
-  cri::is_podman || docker compose $@
+  cri::is_podman && podman-compose $@ || docker compose $@
 }
 
 #===  FUNCTION  ================================================================

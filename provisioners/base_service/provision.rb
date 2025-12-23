@@ -1,6 +1,6 @@
 class BaseService
   @name = "base_service"
-  @enabled = false
+  @enabled = true
   @root_path = File.dirname(__FILE__).split(File::SEPARATOR)[-2..].join(File::SEPARATOR)
 
   def self.provision(config)

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -e
 source /vagrant/include/devbox.env
-require vagrant cri
+require vagrant
+require components/cri
+
 SVC_HOME=$VAGRANT_HOME/.local/basesvc
 #===  FUNCTION  ================================================================
 #         NAME: basesvc::init
