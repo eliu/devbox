@@ -27,7 +27,7 @@
 | ---------------- | ---------------------------- | ------------------------------------------------ |
 | Vagrant Box 镜像 | `bento/rockylinux-9`         | 基础镜像，提供 Rocky Linux 9 操作系统            |
 | OpenJDK          | 8                            |                                                  |
-| Apache Maven     | 3.9.5                        |                                                  |
+| Apache Maven     | 3.9.12                       |                                                  |
 | Git              | 2.29.3                       | 版本控制                                         |
 | CRI              | N/A                          | 容器运行时: docker 或者 podman                   |
 | Compose          |                              | 容器编排工具：docker compose 或者 podman compose |
