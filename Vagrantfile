@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   # Bootstrap step right after `vagrant up`
   config.vm.provision "shell", keep_color: true, inline: <<-SHELL
     #!/usr/bin/env bash
-    set -e
+    set -euo pipefail
     source /vagrant/include/devbox.env
     require installer
     installer::main
