@@ -13,10 +13,12 @@ require components/cri
 # Scope: private
 # ----------------------------------------------------------------
 installer::preprocess() {
-  setup::dns
-  setup::hosts
+  setup::add_context "LANG" "export LANG=en_US.UTF-8"
+  setup::add_context "LC_ALL" "export LC_ALL=en_US.UTF-8"
   setup::add_context "TZ" "export TZ=Asia/Shanghai"
   setup::add_context "PATH" "export PATH=/usr/local/bin:\$PATH"
+  setup::dns
+  setup::hosts
   repo::accelerate
   cri::config_repo
   repo::system_cache

@@ -11,7 +11,9 @@ setup::add_context() {
     grep "$2" $SETUP_ENV_FILE > /dev/null 2>&1 || {
       log::verbose "Setting up environment for $1..."
       echo "$2" >> $SETUP_ENV_FILE
+      set +u
       source /etc/profile > /dev/null
+      set -u
     }
   else
     log::fatal "Context details not provided."

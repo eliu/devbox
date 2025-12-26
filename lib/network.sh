@@ -56,7 +56,7 @@ network::gather_static_ip() {
 # ----------------------------------------------------------------
 network::gather_facts() {
   log::verbose "Gathering facts for networks..."
-  if [[ $1 = '--of-all' ]]; then
+  if [[ ${1:-} = '--of-all' ]]; then
     network::gather_uuid_with_auto_method
   fi
   network::gather_dns
