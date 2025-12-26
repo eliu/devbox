@@ -1,4 +1,4 @@
-require logging config version setup accelerator cri vagrant
+require logging config version setup accelerator cri vagrant components/network
 require components/openjdk
 require components/maven
 require components/epel

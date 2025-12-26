@@ -1,5 +1,5 @@
 require logging
-config_file="/vagrant/etc/devbox.properties"
+config_file="/vagrant/config.properties"
 # Bash make declaration of associated array as local variable
 # by default. We have to use -g option to make it globally visible
 # especially when sourcing this file inside a function.
